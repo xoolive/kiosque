@@ -4,7 +4,7 @@ from pathlib import Path
 import pypandoc
 from bs4 import BeautifulSoup
 
-from .download import Download
+from ..core.download import Download
 
 
 class LeMonde(Download):

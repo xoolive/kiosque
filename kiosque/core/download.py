@@ -6,6 +6,9 @@ import requests
 
 class Download:
 
+    session: requests.Session
+    connected: bool
+
     login_url: str
     credentials: Dict[str, str]
 

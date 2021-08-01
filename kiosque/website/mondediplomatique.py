@@ -3,7 +3,7 @@ from urllib.parse import unquote
 
 from bs4 import BeautifulSoup
 
-from .download import Download
+from ..core.download import Download
 
 
 class MondeDiplomatique(Download):

@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from functools import lru_cache
 from urllib.parse import unquote
 
 from bs4 import BeautifulSoup
 
-from .download import Download
+from ..core.download import Download
 
 
 class PourLaScience(Download):
@@ -11,10 +13,11 @@ class PourLaScience(Download):
     base_url = "https://www.pourlascience.fr/"
     login_url = "https://sso.qiota.com/api/v1/login"
 
-    def login_dict(self):
+    def login_dict(self) -> dict[str, str]:
 
         c = self.session.get(self.base_url)
         c.raise_for_status()
+
         e = BeautifulSoup(c.content, features="lxml")
         form_url = e.find("a", attrs={"id": "connect_link"}).attrs["href"]
         c = self.session.get(form_url)
@@ -49,8 +52,8 @@ class PourLaScience(Download):
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
-
         current = e.find("li", attrs={"class": "magazine"})
+
         c = self.session.get(f"https:{current.find('a').attrs['href']}")
         c.raise_for_status()
 

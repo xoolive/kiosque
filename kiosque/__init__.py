@@ -1,11 +1,11 @@
 # from .aviationweek import AviationWeek
 import argparse
 
-from .config import config_dict
-from .courrierinternational import CourrierInternational
-from .lemonde import LeMonde
-from .mondediplomatique import MondeDiplomatique
-from .pourlascience import PourLaScience
+from .core.config import config_dict
+from .website.courrierinternational import CourrierInternational
+from .website.lemonde import LeMonde
+from .website.mondediplomatique import MondeDiplomatique
+from .website.pourlascience import PourLaScience
 
 
 def main():
