@@ -5,22 +5,27 @@ from urllib.parse import unquote
 
 from bs4 import BeautifulSoup
 
-from ..core.download import Download
+from ..core.website import Website
+from ..core.session import session
 
 
-class PourLaScience(Download):
+class PourLaScience(Website):
 
     base_url = "https://www.pourlascience.fr/"
     login_url = "https://sso.qiota.com/api/v1/login"
 
+    @property
     def login_dict(self) -> dict[str, str]:
 
-        c = self.session.get(self.base_url)
+        credentials = self.credentials
+        assert credentials is not None
+
+        c = session.get(self.base_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
         form_url = e.find("a", attrs={"id": "connect_link"}).attrs["href"]
-        c = self.session.get(form_url)
+        c = session.get(form_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -37,24 +42,25 @@ class PourLaScience(Download):
             "error_uri": "https://connexion.groupepourlascience.fr",
             "referer": referer,
             "uri_referer": "https://www.pourlascience.fr/",
-            **self.credentials,
+            "email": credentials["username"],
+            "password": credentials["password"],
         }
 
     def login(self):
         super().login()
-        c = self.session.get(self.base_url + "login")
+        c = session.get(self.base_url + "login")
         c.raise_for_status()
 
     @lru_cache()
     def latest_issue_url(self):
 
-        c = self.session.get("https://www.pourlascience.fr/")
+        c = session.get("https://www.pourlascience.fr/")
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
         current = e.find("li", attrs={"class": "magazine"})
 
-        c = self.session.get(f"https:{current.find('a').attrs['href']}")
+        c = session.get(f"https:{current.find('a').attrs['href']}")
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")

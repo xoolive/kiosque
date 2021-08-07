@@ -1,19 +1,21 @@
-import re
-from pathlib import Path
-
-import pypandoc
 from bs4 import BeautifulSoup
 
-from ..core.download import Download
+from ..core.website import Website
+from ..core.session import session
 
 
-class LeMonde(Download):
+class LeMonde(Website):
 
     base_url = "https://www.lemonde.fr/"
     login_url = "https://secure.lemonde.fr/sfuser/connexion"
+    alias = ["lemonde"]
 
+    @property
     def login_dict(self):
-        c = self.session.get(self.login_url)
+        credentials = self.credentials
+        assert credentials is not None
+
+        c = session.get(self.login_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -21,41 +23,16 @@ class LeMonde(Download):
         token = e.find("input", attrs=attrs).attrs["value"]
 
         return {
-            "connection[mail]": self.credentials["mail"],
-            "connection[password]": self.credentials["password"],
+            "connection[mail]": credentials["username"],
+            "connection[password]": credentials["password"],
             "connection[stay_connected]": 1,
             "connection[save]": "",
             "connection[newsletters]": [],
             "connection[_token]": token,
         }
 
-    def get_content(self, url):
-        c = self.session.get(url)
-
-        m = re.search(r"\d{4}/\d{2}/\d{2}", url)
-        assert m is not None
-        date = m.group().replace("/", "-")
-
-        filename = f"{date}-{url.split('/')[-1].replace('.html', '.md')}"
-
-        e = BeautifulSoup(c.content, features="lxml")
-
-        # main_body = e.find("section", attrs={"class": "zone--article"})
-
-        title = e.find("h1")
-        author = e.find("a", attrs={"class": "article__author"})
-        if author is None:
-            author = e.find("a", attrs={"class": "article__author-link"})
-        desc = e.find("p", attrs={"class": "article__desc"})
-
-        header = f"""---
-title: {title.text.strip()}
-author: {author.text.strip()}
-date: {date}
-header: {desc.text.strip()}
----
-        """
-
+    def article(self, url):
+        e = self.bs4(url)
         article = e.find("article", attrs={"class": "article__content"})
         if article is None:
             article = e.find("section", attrs={"class": "article__content"})
@@ -66,26 +43,26 @@ header: {desc.text.strip()}
             if embedded is not None:
                 article = embedded
 
-        for x in article.find_all("section", attrs={"class": "catcher"}):
-            x.decompose()
-        for x in article.find_all("section", attrs={"class": "author"}):
-            x.decompose()
-        for x in article.find_all(
+        return article
+
+    def clean(self, article):
+        article = super().clean(article)
+        for elem in article.find_all("section", attrs={"class": "catcher"}):
+            elem.decompose()
+        for elem in article.find_all("section", attrs={"class": "author"}):
+            elem.decompose()
+        for elem in article.find_all(
             "section", attrs={"class": "article__reactions"}
         ):
-            x.decompose()
-        for x in article.find_all("div", attrs={"class": "dfp__inread"}):
-            x.decompose()
+            elem.decompose()
+        for elem in article.find_all("div", attrs={"class": "dfp__inread"}):
+            elem.decompose()
 
-        for x in article.find_all("h2"):
-            x.attrs.clear()
-        for x in article.find_all("h3"):
-            x.name = "blockquote"
-            x.attrs.clear()
-        for x in article.find_all("figure"):
-            x.decompose()
-
-        output = pypandoc.convert_text(article, "md", format="html")
-
-        print(filename)
-        Path(filename).write_text(f"{header}\n\n{output}")
+        for elem in article.find_all("h2"):
+            elem.attrs.clear()
+        for elem in article.find_all("h3"):
+            elem.name = "blockquote"
+            elem.attrs.clear()
+        for elem in article.find_all("figure"):
+            elem.decompose()
+        return article

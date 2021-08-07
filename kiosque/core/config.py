@@ -9,24 +9,17 @@ config_file = config_dir / "kiosque.conf"
 
 if not config_dir.exists():
     config_template = """
-[aviationweek]
-alias = awst
+# [https://www.nytimes.com/]
+# username =
+# password =
+#
+# Add more newspapers as you wish below
+# [https://www.lemonde.fr/]
+# username =
+# password =
 
-[courrierinternational]
-alias = courrier
-name =
-pass =
-
-[mondediplomatique]
-alias = diplomatique, diplo, lmd
-email =
-mot_de_passe =
-
-[pourlascience]
-alias = pls
-email =
-password =
     """
+
     config_dir.mkdir(parents=True)
     config_file.write_text(config_template)
 
