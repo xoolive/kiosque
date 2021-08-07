@@ -97,4 +97,8 @@ class CourrierInternational(Website):
             elem.attrs.clear()
         for elem in article.find_all("div"):
             elem.decompose()
+        for elem in article.find_all(
+            "span", {"class", "empty-author-name-short"}
+        ):
+            elem.decompose()
         return article
