@@ -7,13 +7,13 @@ from typing import Type
 
 import click
 
-from .core.config import config_dict
+from .core.config import config_dict, configuration_file  # noqa: F401
 from .core.website import Website
 
 
-@click.command()
+@click.command(help="Read newspaper articles in textual format")
 @click.argument("url_or_alias")
-@click.option("--output", "-o", type=click.Path(), default=None)
+@click.argument("output", type=click.File("w"), default=None)
 @click.option("-v", "--verbose", count=True, help="Verbosity level")
 def main(url_or_alias: str, output: Path | None, verbose: int):
     logger = logging.getLogger()
@@ -22,7 +22,7 @@ def main(url_or_alias: str, output: Path | None, verbose: int):
     elif verbose > 1:
         logger.setLevel(logging.DEBUG)
 
-    if output is not None:
+    if isinstance(output, str):
         output = Path(output)
 
     library: dict[str, Type[Website]] = dict()
@@ -39,6 +39,11 @@ def main(url_or_alias: str, output: Path | None, verbose: int):
 
     if url_or_alias in library:
         library[url_or_alias]().save_latest_issue()
-    else:
+    elif output is None or isinstance(output, Path):
         instance = Website.instance(url_or_alias)
         instance.write_text(url_or_alias, output)
+    else:
+        # If it should be written to -
+        instance = Website.instance(url_or_alias)
+        content = instance.full_text(url_or_alias)
+        output.write(content)

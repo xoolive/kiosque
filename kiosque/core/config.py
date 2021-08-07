@@ -4,11 +4,11 @@ from typing import Dict
 
 from appdirs import user_config_dir
 
-config_dir = Path(user_config_dir("kiosque"))
-config_file = config_dir / "kiosque.conf"
+configuration_dir = Path(user_config_dir("kiosque"))
+configuration_file = configuration_dir / "kiosque.conf"
 
-if not config_dir.exists():
-    config_template = """
+if not configuration_dir.exists():
+    configuration_template = """
 # [https://www.nytimes.com/]
 # username =
 # password =
@@ -20,11 +20,11 @@ if not config_dir.exists():
 
     """
 
-    config_dir.mkdir(parents=True)
-    config_file.write_text(config_template)
+    configuration_dir.mkdir(parents=True)
+    configuration_file.write_text(configuration_template)
 
 config = configparser.RawConfigParser()
-config.read(config_file.as_posix())
+config.read(configuration_file.as_posix())
 
 config_dict: Dict[str, Dict[str, str]] = dict()
 
