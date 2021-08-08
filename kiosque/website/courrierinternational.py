@@ -92,7 +92,6 @@ class CourrierInternational(Website):
 
     def clean(self, article):
         article = super().clean(article)
-        article.name = "article"
         for elem in article.find_all("h3"):
             elem.attrs.clear()
         for elem in article.find_all("div"):

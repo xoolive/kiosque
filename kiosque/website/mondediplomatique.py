@@ -13,6 +13,8 @@ class MondeDiplomatique(Website):
     login_url = "https://lecteurs.mondediplo.net/?page=connexion_sso"
     alias = ["diplomatique", "diplo"]
 
+    description_meta = {"name": ["description"]}
+
     @property
     def login_dict(self):
         credentials = self.credentials
@@ -62,37 +64,12 @@ class MondeDiplomatique(Website):
             .strip('"')
         )
 
-    def description(self, url):
-        e = self.bs4(url)
-        node = e.find("meta", {"name": "description"})
-        if node is None:
-            return None
-        return node.attrs.get("content", None)
-
-    def date(self, url):
-        e = self.bs4(url)
-        node = e.find("meta", {"property": "article:published_time"})
-        if node is None:
-            return None
-        date = node.attrs.get("content", None)
-        if date is None:
-            return None
-        return date[:10]
-
-    def author(self, url: str):
-        e = self.bs4(url)
-        node = e.find("meta", {"property": "article:author"})
-        if node is None:
-            return None
-        return node.attrs.get("content", None)
-
     def article(self, url):
         e = self.bs4(url)
         return e.find("div", {"class": "texte"})
 
     def clean(self, article):
         article = super().clean(article)
-        article.name = "article"
 
         for elem in article.find_all("figure"):
             elem.decompose()

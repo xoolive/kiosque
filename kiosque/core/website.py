@@ -26,6 +26,29 @@ class Website:
     connected: bool = False
     latest_issue = None  # TODO
 
+    # meta fields
+    author_meta: dict[str, list[str]] = {
+        "property": [
+            "og:article:author",
+            "article:author",
+        ]
+    }
+
+    date_meta: dict[str, list[str]] = {
+        "property": [
+            "og:article:published_time",
+            "article:published_time",
+            "date",
+        ]
+    }
+
+    description_meta: dict[str, list[str]] = {
+        "property": [
+            "og:description",
+            "description",
+        ]
+    }
+
     header_entries = ["title", "author", "date", "url", "description"]
 
     def __init_subclass__(cls) -> None:
@@ -89,14 +112,14 @@ class Website:
 
     def author(self, url: str) -> str | None:
         e = self.bs4(url)
-        node = e.find("meta", {"property": "og:article:author"})
+        node = e.find("meta", self.author_meta)
         if node is None:
             return None
         return node.attrs.get("content", None)
 
     def date(self, url: str) -> str | None:
         e = self.bs4(url)
-        node = e.find("meta", {"property": "og:article:published_time"})
+        node = e.find("meta", self.date_meta)
         if node is None:
             return None
         date = node.attrs.get("content", None)
@@ -109,7 +132,7 @@ class Website:
 
     def description(self, url: str) -> str | None:
         e = self.bs4(url)
-        node = e.find("meta", {"property": "og:description"})
+        node = e.find("meta", self.description_meta)
         if node is None:
             return None
         return node.attrs.get("content", None)
@@ -127,7 +150,9 @@ class Website:
         raise NotImplementedError
 
     def clean(self, article: Tag) -> Tag:
-        return copy.copy(article)
+        article = copy.copy(article)
+        article.name = "article"
+        return article
 
     def content(self, url: str) -> str:
         article = self.article(url)
