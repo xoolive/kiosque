@@ -13,7 +13,7 @@ from .core.website import Website
 
 @click.command(help="Read newspaper articles in textual format")
 @click.argument("url_or_alias")
-@click.argument("output", type=click.File("w"), default=None)
+@click.argument("output", type=click.File("w"), required=False, default=None)
 @click.option("-v", "--verbose", count=True, help="Verbosity level")
 def main(url_or_alias: str, output: Path | None, verbose: int):
     logger = logging.getLogger()
