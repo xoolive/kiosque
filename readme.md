@@ -28,7 +28,7 @@ md_text = Website.instance(url).full_text(url)
 Edit the configuration file with entries as follows
 
 ```conf
-[https://www.nytimes.com/]  # or any base_url
+[https://www.lemonde.fr/]  # or any base_url
 username =
 password =
 ```
