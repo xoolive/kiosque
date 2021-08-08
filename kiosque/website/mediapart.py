@@ -36,7 +36,6 @@ class Mediapart(Website):
 
     def clean(self, article):
         article = super().clean(article)
-        article.name = "article"
         article.attrs.clear()
 
         for elem in article.find_all("div"):
