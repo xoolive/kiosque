@@ -11,6 +11,7 @@ from typing import Any, Type
 import pypandoc
 from bs4 import BeautifulSoup
 from bs4.element import Tag
+import requests
 
 from .config import config_dict
 from .session import session
@@ -90,13 +91,18 @@ class Website:
     def login_dict(self) -> dict[str, Any]:
         return {}
 
-    def login(self) -> None:
-        if self.connected or self.login_dict == {}:
+    def login(self) -> requests.Response:
+        c = session.get(self.base_url)
+        c.raise_for_status()
+
+        login_dict = self.login_dict
+        if self.connected or login_dict == {}:
             return
 
-        c = session.post(self.login_url, data=self.login_dict)
+        c = session.post(self.login_url, data=login_dict)
         c.raise_for_status()
         self.__class__.connected = True
+        return c
 
     # -- Metadata --
 
