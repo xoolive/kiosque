@@ -10,6 +10,16 @@ class LeMonde(Website):
     login_url = "https://secure.lemonde.fr/sfuser/connexion"
     alias = ["lemonde"]
 
+    clean_nodes = [
+        "figure",
+        (
+            "section",
+            {"class": ["catcher", "author", "article__reactions"]},
+        ),
+        ("div", {"class": "dfp__inread"}),
+    ]
+    clean_attributes = ["h2"]
+
     @property
     def login_dict(self):
         credentials = self.credentials
@@ -47,22 +57,9 @@ class LeMonde(Website):
 
     def clean(self, article):
         article = super().clean(article)
-        for elem in article.find_all("section", attrs={"class": "catcher"}):
-            elem.decompose()
-        for elem in article.find_all("section", attrs={"class": "author"}):
-            elem.decompose()
-        for elem in article.find_all(
-            "section", attrs={"class": "article__reactions"}
-        ):
-            elem.decompose()
-        for elem in article.find_all("div", attrs={"class": "dfp__inread"}):
-            elem.decompose()
 
-        for elem in article.find_all("h2"):
-            elem.attrs.clear()
         for elem in article.find_all("h3"):
             elem.name = "blockquote"
             elem.attrs.clear()
-        for elem in article.find_all("figure"):
-            elem.decompose()
+
         return article

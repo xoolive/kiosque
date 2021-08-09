@@ -28,6 +28,10 @@ def main(url_or_alias: str, output: Path | None, verbose: int):
     library: dict[str, Type[Website]] = dict()
 
     for key, value in config_dict.items():
+        logging.debug(f"Parsing configuration for {key}")
+        if not key.endswith("/"):
+            key += "/"
+
         library[key] = website = Website.instance(key).__class__
 
         if "alias" in value:

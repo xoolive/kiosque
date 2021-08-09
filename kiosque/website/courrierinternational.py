@@ -14,6 +14,11 @@ class CourrierInternational(Website):
     login_url = base_url + "login?destination=node/6"
     alias = ["courrier"]
 
+    article_node = ("div", {"class", "article-text"})
+
+    clean_attributes = ["h3"]
+    clean_nodes = ["div", ("span", {"class", "empty-author-name-short"})]
+
     header_entries = [
         "title",
         "author",
@@ -59,10 +64,6 @@ class CourrierInternational(Website):
 
         return e.find("a", attrs=attrs).attrs["href"]
 
-    def article(self, url: str):
-        e = self.bs4(url)
-        return e.find("div", {"class", "article-text"})
-
     def author(self, url: str):
         author = super().author(url)
         if author is not None:
@@ -89,15 +90,3 @@ class CourrierInternational(Website):
         if link is None:
             return None
         return link.attrs["href"]
-
-    def clean(self, article):
-        article = super().clean(article)
-        for elem in article.find_all("h3"):
-            elem.attrs.clear()
-        for elem in article.find_all("div"):
-            elem.decompose()
-        for elem in article.find_all(
-            "span", {"class", "empty-author-name-short"}
-        ):
-            elem.decompose()
-        return article

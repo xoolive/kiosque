@@ -7,6 +7,8 @@ class Mediapart(Website):
 
     author_meta = {"name": ["author"]}
 
+    clean_nodes = ["div"]
+
     @property
     def login_dict(self):
         credentials = self.credentials
@@ -31,14 +33,5 @@ class Mediapart(Website):
         embedded = article.find("div", {"class": "page-pane"})
         if embedded is not None:
             article = embedded
-
-        return article
-
-    def clean(self, article):
-        article = super().clean(article)
-        article.attrs.clear()
-
-        for elem in article.find_all("div"):
-            elem.decompose()
 
         return article

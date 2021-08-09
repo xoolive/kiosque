@@ -15,6 +15,11 @@ class MondeDiplomatique(Website):
 
     description_meta = {"name": ["description"]}
 
+    article_node = ("div", {"class": "texte"})
+
+    clean_nodes = ["figure", "div", "small", "a"]
+    clean_attributes = ["h3", "span"]
+
     @property
     def login_dict(self):
         credentials = self.credentials
@@ -63,26 +68,3 @@ class MondeDiplomatique(Website):
             .split("=")[1]
             .strip('"')
         )
-
-    def article(self, url):
-        e = self.bs4(url)
-        return e.find("div", {"class": "texte"})
-
-    def clean(self, article):
-        article = super().clean(article)
-
-        for elem in article.find_all("figure"):
-            elem.decompose()
-        for elem in article.find_all("div"):
-            elem.decompose()
-
-        for elem in article.find_all("h3"):
-            elem.attrs.clear()
-        for elem in article.find_all("span"):
-            elem.attrs.clear()
-        for elem in article.find_all("small"):
-            elem.decompose()
-        for elem in article.find_all("a"):
-            elem.decompose()
-
-        return article

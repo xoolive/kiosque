@@ -49,6 +49,11 @@ class Website:
         ]
     }
 
+    article_node: str | tuple[str, dict[str, str]]
+
+    clean_nodes: list[str] = []
+    clean_attributes: list[str] = []
+
     header_entries = ["title", "author", "date", "url", "description"]
 
     def __init_subclass__(cls) -> None:
@@ -147,11 +152,33 @@ class Website:
     # -- Extract article body --
 
     def article(self, url: str) -> Tag:
+        e = self.bs4(url)
+        article = e.find(self.article_node)
+        if article is not None:
+            return article
         raise NotImplementedError
 
     def clean(self, article: Tag) -> Tag:
         article = copy.copy(article)
+        article.attrs.clear()
         article.name = "article"
+
+        for id in self.clean_attributes:
+            if isinstance(id, str):
+                for elem in article.find_all(id):
+                    elem.attrs.clear()
+            elif isinstance(id, tuple):
+                for elem in article.find_all(*id):
+                    elem.attrs.clear()
+
+        for id in self.clean_nodes:
+            if isinstance(id, str):
+                for elem in article.find_all(id):
+                    elem.decompose()
+            elif isinstance(id, tuple):
+                for elem in article.find_all(*id):
+                    elem.decompose()
+
         return article
 
     def content(self, url: str) -> str:

@@ -8,6 +8,9 @@ class UsineNouvelle(Website):
 
     date_meta = {"name": ["date.modified"]}
 
+    article_node = ("div", {"class": "epAtcBody"})
+    clean_nodes = ["section"]
+
     @property
     def login_dict(self):
         credentials = self.credentials
@@ -32,15 +35,8 @@ class UsineNouvelle(Website):
             "span", {"class": "epMetaData__content__infos-name"}
         ).text.strip()
 
-    def article(self, url):
-        e = self.bs4(url)
-        article = e.find("div", {"class": "epAtcBody"})
-        return article
-
     def clean(self, article):
         article = super().clean(article)
-        for elem in article.find_all("section"):
-            elem.decompose()
 
         for elem in article.find_all("span", {"class": "interTitre"}):
             elem.attrs.clear()
