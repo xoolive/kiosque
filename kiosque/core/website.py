@@ -153,7 +153,10 @@ class Website:
 
     def article(self, url: str) -> Tag:
         e = self.bs4(url)
-        article = e.find(self.article_node)
+        if isinstance(self.article_node, str):
+            article = e.find(self.article_node)
+        elif isinstance(self.article_node, tuple):
+            article = e.find(*self.article_node)
         if article is not None:
             return article
         raise NotImplementedError
