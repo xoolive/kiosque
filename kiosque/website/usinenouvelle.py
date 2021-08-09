@@ -1,7 +1,5 @@
-from kiosque.core.website import Website
+from ..core.website import Website
 from bs4 import BeautifulSoup
-
-Website.known_websites.clear()
 
 
 class UsineNouvelle(Website):
