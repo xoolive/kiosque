@@ -29,6 +29,13 @@ class Website:
     url_translation: dict[str, str] = dict()
 
     # meta fields
+    title_meta: dict[str, list[str]] = {
+        "property": [
+            "og:title",
+            "title",
+        ]
+    }
+
     author_meta: dict[str, list[str]] = {
         "property": [
             "og:article:author",
@@ -105,6 +112,8 @@ class Website:
         c = session.get(self.base_url)
         c.raise_for_status()
 
+        logging.info(f"Logging in at {self.login_url}")
+
         login_dict = self.login_dict
         if self.connected or login_dict == {}:
             return
@@ -128,7 +137,7 @@ class Website:
 
     def title(self, url: str) -> str | None:
         e = self.bs4(url)
-        node = e.find("meta", {"property": "og:title"})
+        node = e.find("meta", self.title_meta)
         if node is None:
             return None
         return node.attrs.get("content", None)
