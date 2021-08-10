@@ -25,7 +25,8 @@ class Website:
     base_url: str
     login_url: str
     connected: bool = False
-    latest_issue = None  # TODO
+
+    url_translation: dict[str, str] = dict()
 
     # meta fields
     author_meta: dict[str, list[str]] = {
@@ -83,6 +84,15 @@ class Website:
                     globals()[module_name] = import_module(module_name)
                     return cls.known_websites[-1]()
 
+        # -- Attempt to access the website, and fetch for the real URL --
+        c = session.get(url)
+        c.raise_for_status()
+        e = BeautifulSoup(c.content, features="lxml")
+        new_url = e.find("meta", {"property": "og:url"}).attrs["content"]
+        if url != new_url:
+            cls.url_translation[url] = new_url
+            return cls.instance(new_url)
+
         raise ValueError("Unsupported URL")
 
     # -- Credentials (if any) --
@@ -110,6 +120,8 @@ class Website:
     def bs4(self, url: str) -> BeautifulSoup:
         if not self.connected and self.credentials is not None:
             self.login()
+        # Just in case this URL has been redirected...
+        url = self.url_translation.get(url, url)
         c = session.get(url)
         c.raise_for_status()
         return BeautifulSoup(c.content, features="lxml")
