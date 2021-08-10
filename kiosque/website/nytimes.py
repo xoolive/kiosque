@@ -25,7 +25,7 @@ class NewYorkTimes(Website):
             if "class" in elem.attrs:
                 del elem.attrs["class"]
 
-        new_article = BeautifulSoup("<article></article>")
+        new_article = BeautifulSoup("<article></article>", features="lxml")
 
         for elem in article.find_all("p"):
             new_article.append(elem)

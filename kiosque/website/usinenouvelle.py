@@ -46,7 +46,7 @@ class UsineNouvelle(Website):
             elem.attrs.clear()
             elem.name = "span"
 
-        new_article = BeautifulSoup("<article></article>")
+        new_article = BeautifulSoup("<article></article>", features="lxml")
 
         for elem in article.find_all("p"):
             new_article.append(elem)
