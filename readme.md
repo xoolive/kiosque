@@ -23,7 +23,7 @@ from kiosque import Website
 md_text = Website.instance(url).full_text(url)
 ```
 
-## Credentials
+## Authentication
 
 Edit the configuration file with entries as follows
 
@@ -50,6 +50,10 @@ Development version:
 ```bash
 poetry install
 ```
+
+## Supported websites
+
+A comprehensive list is available here in the [`websites.md`](websites.md) file. Support for authentication is offered for some content, but help of subscribing readers is obviously wanted to provide access to more contents. More websites are integrated as soon as an opportunity to test them arises. Pull requests are of course welcome.
 
 ## License
 
