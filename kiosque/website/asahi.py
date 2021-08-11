@@ -4,7 +4,7 @@ from ..core.website import Website
 
 
 class Asahi(Website):
-    base_url = "https://www.asahi.com"
+    base_url = "https://www.asahi.com/"
 
     header_entries = ["title", "date", "url"]
 

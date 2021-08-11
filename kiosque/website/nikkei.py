@@ -2,7 +2,7 @@ from ..core.website import Website
 
 
 class Nikkei(Website):
-    base_url = "https://www.nikkei.com"
+    base_url = "https://www.nikkei.com/"
 
     header_entries = ["title", "date", "url"]
 
