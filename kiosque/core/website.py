@@ -47,6 +47,8 @@ class Website:
         "property": [
             "og:article:published_time",
             "article:published_time",
+            "og:article:updated_time",
+            "og:updated_time",
             "date",
         ]
     }
