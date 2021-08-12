@@ -3,18 +3,21 @@ from __future__ import annotations
 import copy
 import logging
 import re
-from importlib import import_module
 from functools import lru_cache
+from importlib import import_module
 from pathlib import Path
-from typing import Any, Type
+from typing import Any, Dict, List, Type, Union
 
+import pandas as pd
 import pypandoc
+import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-import requests
 
 from .config import config_dict
 from .session import session
+
+node_attrs_type = Dict[str, Union[str, List[str]]]
 
 
 class Website:
@@ -29,21 +32,21 @@ class Website:
     url_translation: dict[str, str] = dict()
 
     # meta fields
-    title_meta: dict[str, list[str]] = {
+    title_meta: node_attrs_type = {
         "property": [
             "og:title",
             "title",
         ]
     }
 
-    author_meta: dict[str, list[str]] = {
+    author_meta: node_attrs_type = {
         "property": [
             "og:article:author",
             "article:author",
         ]
     }
 
-    date_meta: dict[str, list[str]] = {
+    date_meta: node_attrs_type = {
         "property": [
             "og:article:published_time",
             "article:published_time",
@@ -53,17 +56,17 @@ class Website:
         ]
     }
 
-    description_meta: dict[str, list[str]] = {
+    description_meta: node_attrs_type = {
         "property": [
             "og:description",
             "description",
         ]
     }
 
-    article_node: str | tuple[str, dict[str, str]]
+    article_node: str | tuple[str, node_attrs_type]
 
-    clean_nodes: list[str] = []
-    clean_attributes: list[str] = []
+    clean_nodes: list[str | tuple[str, node_attrs_type]] = []
+    clean_attributes: list[str | tuple[str, node_attrs_type]] = []
 
     header_entries = ["title", "author", "date", "url", "description"]
 
@@ -110,7 +113,7 @@ class Website:
     def login_dict(self) -> dict[str, Any]:
         return {}
 
-    def login(self) -> requests.Response:
+    def login(self) -> requests.Response | None:
         c = session.get(self.base_url)
         c.raise_for_status()
 
@@ -118,7 +121,7 @@ class Website:
 
         login_dict = self.login_dict
         if self.connected or login_dict == {}:
-            return
+            return None
 
         c = session.post(self.login_url, data=login_dict)
         c.raise_for_status()
@@ -159,7 +162,7 @@ class Website:
         date = node.attrs.get("content", None)
         if date is None:
             return None
-        return date[:10]
+        return f"{pd.Timestamp(date):%Y-%m-%d}"
 
     def url(self, url: str) -> str:
         return url
@@ -169,7 +172,10 @@ class Website:
         node = e.find("meta", self.description_meta)
         if node is None:
             return None
-        return node.attrs.get("content", None)
+        text = node.attrs.get("content", None)
+        if text is None:
+            return None
+        return text.strip().split("\n")[0]
 
     def header(self, url: str) -> str:
         entries = "\n".join(
@@ -241,8 +247,6 @@ class Website:
         return Path(url).name
 
     def get_latest_issue(self):
-        if self.latest_issue is not None:
-            return self.latest_issue
         if not self.connected:
             self.login()
         url = self.latest_issue_url()

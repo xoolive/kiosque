@@ -17,7 +17,7 @@ class AviationWeek(Website):
 
     clean_nodes = [("div", {"class": ["dfp-ad", "dfp-tag"]})]
 
-    def login(self) -> None:
+    def login(self):
         credentials = self.credentials
         assert credentials is not None
 

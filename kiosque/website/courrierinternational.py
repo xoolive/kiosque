@@ -14,10 +14,10 @@ class CourrierInternational(Website):
     login_url = base_url + "login?destination=node/6"
     alias = ["courrier"]
 
-    article_node = ("div", {"class", "article-text"})
+    article_node = ("div", {"class": "article-text"})
 
     clean_attributes = ["h3"]
-    clean_nodes = ["div", ("span", {"class", "empty-author-name-short"})]
+    clean_nodes = ["div", ("span", {"class": "empty-author-name-short"})]
 
     header_entries = [
         "title",
