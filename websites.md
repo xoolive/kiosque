@@ -27,7 +27,7 @@ More websites are integrated as soon as an opportunity to test them arises. Pull
 | [Le Figaro](https://www.lefigaro.fr/)                            | 🇫🇷      | French   |                |
 | [Le Monde](https://www.lemonde.fr/)                              | 🇫🇷      | French   | ☑️             |
 | [Le Monde Diplomatique](https://www.monde-diplomatique.fr/)      | 🇫🇷      | French   | ☑️             |
-| [Le Temps](https://www.letemps.ch/)                              | 🇫🇷      | French   |                |
+| [Le Temps](https://www.letemps.ch/)                              | 🇨🇭      | French   |                |
 | [Les Echos](https://www.lesechos.fr/)                            | 🇫🇷      | French   | ☑️             |
 | [Mediapart](https://www.mediapart.fr/)                           | 🇫🇷      | French   | ☑️             |
 | [Pour la Science](https://www.pourlascience.fr/)                 | 🇫🇷      | French   | ☑️             |
