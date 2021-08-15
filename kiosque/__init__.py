@@ -9,6 +9,7 @@ import click
 
 from .core.config import config_dict, configuration_file  # noqa: F401
 from .core.website import Website
+from .tui.tui import main as tui_main
 
 
 @click.command(help="Read newspaper articles in textual format")
@@ -28,6 +29,9 @@ def main(url_or_alias: str, output: Path | None, verbose: int):
     library: dict[str, Type[Website]] = dict()
 
     for key, value in config_dict.items():
+        if not key.startswith("http"):
+            continue
+
         logging.debug(f"Parsing configuration for {key}")
         if not key.endswith("/"):
             key += "/"
@@ -41,7 +45,9 @@ def main(url_or_alias: str, output: Path | None, verbose: int):
         for alias in website.alias:
             library[alias] = website
 
-    if url_or_alias in library:
+    if url_or_alias == "tui":
+        tui_main()
+    elif url_or_alias in library:
         library[url_or_alias]().save_latest_issue()
     elif output is None or isinstance(output, Path):
         instance = Website.instance(url_or_alias)
