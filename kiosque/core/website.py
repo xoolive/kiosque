@@ -77,12 +77,15 @@ class Website:
         self.credentials = config_dict.get(self.base_url, None)
 
     @classmethod
-    def instance(cls, url: str) -> Website:
-        url = url.replace("http://", "https://")
+    def instance(cls, url_or_alias: str) -> Website:
+        url_or_alias = url_or_alias.replace("http://", "https://")
 
         # -- First check if the website is already created --
         for website in cls.known_websites:
-            if url.startswith(website.base_url):
+            if (
+                url_or_alias.startswith(website.base_url)
+                or url_or_alias in website.alias
+            ):
                 return website()
 
         # -- Otherwise guess which file to import --
@@ -90,19 +93,19 @@ class Website:
         for x in (Path(__file__).parent.parent / "website").glob("*.py"):
             for line in x.read_text().split("\n"):
                 match = pat.match(line)
-                if match and url.startswith(match.group(1)):
+                if match and url_or_alias.startswith(match.group(1)):
                     module_name = f"kiosque.website.{x.stem}"
                     logging.info(f"Import {module_name}")
                     globals()[module_name] = import_module(module_name)
                     return cls.known_websites[-1]()
 
         # -- Attempt to access the website, and fetch for the real URL --
-        c = session.get(url)
+        c = session.get(url_or_alias)
         c.raise_for_status()
         e = BeautifulSoup(c.content, features="lxml")
         new_url = e.find("meta", {"property": "og:url"}).attrs["content"]
-        if url != new_url:
-            cls.url_translation[url] = new_url
+        if url_or_alias != new_url:
+            cls.url_translation[url_or_alias] = new_url
             return cls.instance(new_url)
 
         raise ValueError("Unsupported URL")
