@@ -26,3 +26,11 @@ class PocketAPI:
 
     def __iter__(self):
         yield from self.json["list"].values()
+
+    def archive(self, id_):
+        self.pocket.archive(id_).commit()
+        self.retrieve()
+
+    def delete(self, id_):
+        self.pocket.delete(id_).commit()
+        self.retrieve()

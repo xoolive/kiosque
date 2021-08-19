@@ -109,6 +109,16 @@ class BookmarksWidget(Widget):
     def action_enter(self):
         webbrowser.open(self.entries.entries[self.selected_index].url)
 
+    def action_archive(self):
+        self.pocket.archive(self.entries.entries[self.selected_index].item_id)
+        del self.entries.entries[self.selected_index]
+        self.selected_index = min(self.selected_index, len(self.entries) - 1)
+
+    def action_delete(self):
+        self.pocket.delete(self.entries.entries[self.selected_index].item_id)
+        del self.entries.entries[self.selected_index]
+        self.selected_index = min(self.selected_index, len(self.entries) - 1)
+
 
 class Kiosque(App):
     async def on_load(self, event: events.Load) -> None:
@@ -122,6 +132,8 @@ class Kiosque(App):
         await self.bind("o", "enter()", "Open")
         await self.bind(Keys.Enter, "enter()", show=False)
         await self.bind("c", "copy", "Copy URL")
+        await self.bind("e", "archive", "Archive")
+        await self.bind("d", "delete", "Delete")
 
         self.pocket = PocketAPI()
         self.bookmarks = BookmarksWidget(name="bookmarks", pocket=self.pocket)
@@ -151,6 +163,14 @@ class Kiosque(App):
 
     async def action_enter(self) -> None:
         self.bookmarks.action_enter()
+
+    async def action_archive(self) -> None:
+        self.bookmarks.action_archive()
+        self.refresh()
+
+    async def action_delete(self) -> None:
+        self.bookmarks.action_delete()
+        self.refresh()
 
 
 def main():
