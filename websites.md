@@ -10,6 +10,7 @@ More websites are integrated as soon as an opportunity to test them arises. Pull
 | [Financial Times](https://www.ft.com/)                           | 🇬🇧      | English  |                |
 | [The Guardian](https://www.theguardian.com/)                     | 🇬🇧      | English  |                |
 | [Aviation Week & Space Technology](https://aviationweek.com/)    | 🇺🇸      | English  | ☑️             |
+| [Los Angeles Times](https://www.latimes.com/)                    | 🇺🇸      | English  |                |
 | [NBC News](https://www.nbcnews.com/)                             | 🇺🇸      | English  |                |
 | [National Geographic](https://www.nationalgeographic.com/)       | 🇺🇸      | English  |                |
 | [Quanta Magazine](https://www.quantamagazine.com/)               | 🇺🇸      | English  |                |
