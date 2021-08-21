@@ -22,6 +22,7 @@ from textual.widget import Widget
 from textual.widgets import Footer, Header, ScrollView
 
 from ..api.pocket import PocketAPI
+from ..core.website import Website
 
 
 @dataclass
@@ -119,6 +120,14 @@ class BookmarksWidget(Widget):
         del self.entries.entries[self.selected_index]
         self.selected_index = min(self.selected_index, len(self.entries) - 1)
 
+    def action_refresh(self):
+        self.pocket.retrieve()
+        self.selected_index = min(self.selected_index, len(self.entries) - 1)
+
+    def action_save(self):
+        url = self.entries.entries[self.selected_index].url
+        Website.instance(url).write_text(url)
+
 
 class Kiosque(App):
     async def on_load(self, event: events.Load) -> None:
@@ -134,6 +143,8 @@ class Kiosque(App):
         await self.bind("c", "copy", "Copy URL")
         await self.bind("e", "archive", "Archive")
         await self.bind("d", "delete", "Delete")
+        await self.bind("r", "refresh", "Refresh")
+        await self.bind("s", "save", "Save")
 
         self.pocket = PocketAPI()
         self.bookmarks = BookmarksWidget(name="bookmarks", pocket=self.pocket)
@@ -171,6 +182,13 @@ class Kiosque(App):
     async def action_delete(self) -> None:
         self.bookmarks.action_delete()
         self.refresh()
+
+    async def action_refresh(self) -> None:
+        self.bookmarks.action_refresh()
+        self.refresh()
+
+    async def action_save(self) -> None:
+        self.bookmarks.action_save()
 
 
 def main():
