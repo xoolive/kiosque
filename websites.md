@@ -13,6 +13,8 @@ More websites are integrated as soon as an opportunity to test them arises. Pull
 | [Los Angeles Times](https://www.latimes.com/)                    | 🇺🇸      | English  |                |
 | [NBC News](https://www.nbcnews.com/)                             | 🇺🇸      | English  |                |
 | [National Geographic](https://www.nationalgeographic.com/)       | 🇺🇸      | English  |                |
+| [Politico](https://www.politico.com/)                            | 🇺🇸      | English  |                |
+| [Politico Europe](https://www.politico.eu/)                      | 🇺🇸      | English  |                |
 | [Quanta Magazine](https://www.quantamagazine.com/)               | 🇺🇸      | English  |                |
 | [The Atlantic](https://www.theatlantic.com/)                     | 🇺🇸      | English  |                |
 | [The New York Times](https://www.nytimes.com/)                   | 🇺🇸      | English  |                |
