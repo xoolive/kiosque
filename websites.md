@@ -4,38 +4,50 @@ The websites below are currently supported, ordered first by language (English f
 
 More websites are integrated as soon as an opportunity to test them arises. Pull requests are of course welcome.
 
-| Newspaper                                                        | Country | Language | Authentication |
-| ---------------------------------------------------------------- | ------- | -------- | -------------- |
-| [The Conversation](https://theconversation.com/)                 | 🇦🇺      | English  |                |
-| [Financial Times](https://www.ft.com/)                           | 🇬🇧      | English  |                |
-| [The Guardian](https://www.theguardian.com/)                     | 🇬🇧      | English  |                |
-| [Aviation Week & Space Technology](https://aviationweek.com/)    | 🇺🇸      | English  | ☑️             |
-| [Los Angeles Times](https://www.latimes.com/)                    | 🇺🇸      | English  |                |
-| [NBC News](https://www.nbcnews.com/)                             | 🇺🇸      | English  |                |
-| [National Geographic](https://www.nationalgeographic.com/)       | 🇺🇸      | English  |                |
-| [Politico](https://www.politico.com/)                            | 🇺🇸      | English  |                |
-| [Politico Europe](https://www.politico.eu/)                      | 🇧🇪      | English  |                |
-| [Quanta Magazine](https://www.quantamagazine.com/)               | 🇺🇸      | English  |                |
-| [The Atlantic](https://www.theatlantic.com/)                     | 🇺🇸      | English  |                |
-| [The New York Times](https://www.nytimes.com/)                   | 🇺🇸      | English  |                |
-| [The New Yorker](https://www.newyorker.com/)                     | 🇺🇸      | English  |                |
-| [The Washington Post](https://www.washingtonpost.com/)           | 🇺🇸      | English  |                |
-| [Asia Nikkei](https://asia.nikkei.com/)                          | 🇯🇵      | English  |                |
-| [01net](https://www.01net.com/)                                  | 🇫🇷      | French   |                |
-| [Courrier international](https://www.courrierinternational.com/) | 🇫🇷      | French   | ☑️             |
-| [France Culture](https://www.franceculture.fr/)                  | 🇫🇷      | French   |                |
-| [France Info](https://www.francetvinfo.fr/)                      | 🇫🇷      | French   |                |
-| [L'Usine Nouvelle](https://www.usinenouvelle.com/)               | 🇫🇷      | French   | ☑️             |
-| [La Dépêche](https://www.ladepeche.fr/)                          | 🇫🇷      | French   |                |
-| [Le Figaro](https://www.lefigaro.fr/)                            | 🇫🇷      | French   |                |
-| [Le Monde](https://www.lemonde.fr/)                              | 🇫🇷      | French   | ☑️             |
-| [Le Monde Diplomatique](https://www.monde-diplomatique.fr/)      | 🇫🇷      | French   | ☑️             |
-| [Le Temps](https://www.letemps.ch/)                              | 🇨🇭      | French   |                |
-| [Les Echos](https://www.lesechos.fr/)                            | 🇫🇷      | French   | ☑️             |
-| [Mediapart](https://www.mediapart.fr/)                           | 🇫🇷      | French   | ☑️             |
-| [Pour la Science](https://www.pourlascience.fr/)                 | 🇫🇷      | French   | ☑️             |
-| [Reporterre](https://reporterre.net/)                            | 🇫🇷      | French   |                |
-| [Telerama](https://www.telerama.fr/)                             | 🇫🇷      | French   |                |
-| [朝日新聞](https://www.asahi.com/)                               | 🇯🇵      | Japanese |                |
-| [読売新聞](https://www.yomiuri.co.jp/)                           | 🇯🇵      | Japanese |                |
-| [日本経済新聞](https://www.nikkei.com/)                          | 🇯🇵      | Japanese |                |
+## English language
+
+| Newspaper                                                     | Country | Authentication |
+| ------------------------------------------------------------- | ------- | -------------- |
+| [Asia Nikkei](https://asia.nikkei.com/)                       | 🇯🇵      |
+| [Aviation Week & Space Technology](https://aviationweek.com/) | 🇺🇸      | ☑️             |
+| [Financial Times](https://www.ft.com/)                        | 🇬🇧      |
+| [Los Angeles Times](https://www.latimes.com/)                 | 🇺🇸      |
+| [NBC News](https://www.nbcnews.com/)                          | 🇺🇸      |
+| [National Geographic](https://www.nationalgeographic.com/)    | 🇺🇸      |
+| [Politico](https://www.politico.com/)                         | 🇺🇸      |
+| [Politico Europe](https://www.politico.eu/)                   | 🇧🇪      |
+| [Quanta Magazine](https://www.quantamagazine.com/)            | 🇺🇸      |
+| [The Atlantic](https://www.theatlantic.com/)                  | 🇺🇸      |
+| [The Conversation](https://theconversation.com/)              | 🇦🇺      |
+| [The Guardian](https://www.theguardian.com/)                  | 🇬🇧      |
+| [The New York Times](https://www.nytimes.com/)                | 🇺🇸      |
+| [The New Yorker](https://www.newyorker.com/)                  | 🇺🇸      |
+| [The Washington Post](https://www.washingtonpost.com/)        | 🇺🇸      |
+
+## Presse en français
+
+| Journal                                                          | Pays | Authentification |
+| ---------------------------------------------------------------- | ---- | ---------------- |
+| [01net](https://www.01net.com/)                                  | 🇫🇷   |                  |
+| [Courrier international](https://www.courrierinternational.com/) | 🇫🇷   | ☑️               |
+| [France Culture](https://www.franceculture.fr/)                  | 🇫🇷   |                  |
+| [France Info](https://www.francetvinfo.fr/)                      | 🇫🇷   |                  |
+| [L'Usine Nouvelle](https://www.usinenouvelle.com/)               | 🇫🇷   | ☑️               |
+| [La Dépêche](https://www.ladepeche.fr/)                          | 🇫🇷   |                  |
+| [Le Figaro](https://www.lefigaro.fr/)                            | 🇫🇷   |                  |
+| [Le Monde](https://www.lemonde.fr/)                              | 🇫🇷   | ☑️               |
+| [Le Monde Diplomatique](https://www.monde-diplomatique.fr/)      | 🇫🇷   | ☑️               |
+| [Le Temps](https://www.letemps.ch/)                              | 🇨🇭   |                  |
+| [Les Echos](https://www.lesechos.fr/)                            | 🇫🇷   | ☑️               |
+| [Mediapart](https://www.mediapart.fr/)                           | 🇫🇷   | ☑️               |
+| [Pour la Science](https://www.pourlascience.fr/)                 | 🇫🇷   | ☑️               |
+| [Reporterre](https://reporterre.net/)                            | 🇫🇷   |                  |
+| [Telerama](https://www.telerama.fr/)                             | 🇫🇷   |                  |
+
+## 日本の新聞
+
+|                                         |
+| --------------------------------------- |
+| [朝日新聞](https://www.asahi.com/)      |
+| [読売新聞](https://www.yomiuri.co.jp/)  |
+| [日本経済新聞](https://www.nikkei.com/) |
