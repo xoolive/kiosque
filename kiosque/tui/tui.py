@@ -14,7 +14,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 # -- Textual imports --
-from textual import events
+from textual import events, layout
 from textual.app import App
 from textual.keys import Keys
 from textual.reactive import Reactive
@@ -129,6 +129,15 @@ class BookmarksWidget(Widget):
         Website.instance(url).write_text(url)
 
 
+class PreviewBox(Widget):
+    def __init__(self, name: str | None, content: Markdown) -> None:
+        super().__init__(name=name)
+        self.content = content
+
+    def render(self) -> RenderableType:
+        return Padding(self.content)
+
+
 class Kiosque(App):
     async def on_load(self, event: events.Load) -> None:
         """Sent before going in to application mode."""
@@ -148,7 +157,9 @@ class Kiosque(App):
 
         self.pocket = PocketAPI()
         self.bookmarks = BookmarksWidget(name="bookmarks", pocket=self.pocket)
-        self.excerpt = Markdown("**b**" * 200)
+        self.excerpt = PreviewBox(
+            name="preview", content=Markdown("content " * 2000)
+        )
 
         self.bookmarkview = ScrollView(self.bookmarks)
         self.preview = ScrollView(self.excerpt)
@@ -159,6 +170,16 @@ class Kiosque(App):
         # Dock our widgets
         await self.view.dock(Header(), edge="top")
         await self.view.dock(Footer(), edge="bottom")
+
+        # two_views = DockView(name="main")
+        # await two_views.dock(self.bookmarkview, edge="top")
+        # await two_views.dock(self.preview)
+        # await self.view.dock(two_views, edge="top")
+
+        # TODO
+        # build a view
+        # attach two subviews
+        # dock the view
         await self.view.dock(self.bookmarkview, self.preview, edge="top")
 
     async def action_up(self) -> None:
@@ -177,14 +198,17 @@ class Kiosque(App):
 
     async def action_archive(self) -> None:
         self.bookmarks.action_archive()
+        self.bookmarks.refresh(layout=True)
         self.refresh()
 
     async def action_delete(self) -> None:
         self.bookmarks.action_delete()
+        self.bookmarks.refresh(layout=True)
         self.refresh()
 
     async def action_refresh(self) -> None:
         self.bookmarks.action_refresh()
+        self.bookmarks.refresh(layout=True)
         self.refresh()
 
     async def action_save(self) -> None:

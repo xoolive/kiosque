@@ -60,7 +60,7 @@ class PourLaScience(Website):
         e = BeautifulSoup(c.content, features="lxml")
         current = e.find("li", attrs={"class": "magazine"})
 
-        c = session.get(f"https:{current.find('a').attrs['href']}")
+        c = session.get(f"{current.find('a').attrs['href']}")
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")

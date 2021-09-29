@@ -40,10 +40,13 @@ def main(url_or_alias: str, output: Path | None, verbose: int):
 
         if "alias" in value:
             for alias in value["alias"].split(","):
+                logging.debug(f"Setting alias '{alias}' for {website}")
                 website.alias.append(alias)
 
-        for alias in website.alias:
-            library[alias] = website
+            for alias in website.alias:
+                library[alias] = website
+
+    logging.debug(f"List of aliases: {library}")
 
     if url_or_alias == "tui":
         tui_main()

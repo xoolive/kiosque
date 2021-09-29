@@ -1,5 +1,19 @@
 # kiosque
 
+```bash
+# Runs the textual interface
+kiosque
+# equivalent to:
+kiosque tui
+# Display the link in a pager
+kiosque preview https://...
+# link = download to file, alias = get the PDF
+kiosque download link_or_alias
+kiosque download link_or_alias output.md
+# get the PDF
+kiosque latest_issue link_or_alias
+```
+
 ## Command-line interface
 
 ```bash
