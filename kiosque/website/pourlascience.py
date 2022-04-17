@@ -65,7 +65,7 @@ class PourLaScience(Website):
 
         e = BeautifulSoup(c.content, features="lxml")
 
-        attrs = {"class": "btn btn-yellow", "id": "download"}
+        attrs = {"id": "download"}
         url = e.find("a", attrs=attrs).attrs["href"]
 
         return f"{self.base_url}api{url}"

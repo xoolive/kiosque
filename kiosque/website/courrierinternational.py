@@ -11,7 +11,7 @@ from ..core.website import Website
 class CourrierInternational(Website):
 
     base_url = "https://www.courrierinternational.com/"
-    login_url = base_url + "login?destination=node/6"
+    login_url = base_url + "login?destination=<front>"
     alias = ["courrier"]
 
     article_node = ("div", {"class": "article-text"})
@@ -43,26 +43,29 @@ class CourrierInternational(Website):
         return {
             "remember_me": "1",
             "form_build_id": form_id,
-            "form_id": "user_login",
-            "op": "Se connecter",
+            "form_id": "user_login_block",
+            "op": "Se+connecter",
+            "ci_promo_code_code": "",
             "name": credentials["username"],
             "pass": credentials["password"],
         }
 
     @lru_cache()
     def latest_issue_url(self):
-        c = session.get(self.base_url + "magazine")
+
+        c = session.get(self.base_url)
         c.raise_for_status()
+
         e = BeautifulSoup(c.content, features="lxml")
+        section = e.find("section", attrs={"class": "hebdo-section"})
+        page_url = section.find("a").attrs["href"]
 
-        x = e.find("article", attrs={"class": "item hebdo"})
-
-        c = session.get(self.base_url + x.find("a").attrs["href"])
+        c = session.get(page_url)
         c.raise_for_status()
-        e = BeautifulSoup(c.content, features="lxml")
-        attrs = {"class": "issue-download"}
 
-        return e.find("a", attrs=attrs).attrs["href"]
+        e = BeautifulSoup(c.content, features="lxml")
+        magazine = e.find("div", attrs={"class": "magazine-tools"})
+        return magazine.find("a", attrs={"data-icon": "pdf"}).attrs["href"]
 
     def author(self, url: str):
         author = super().author(url)
