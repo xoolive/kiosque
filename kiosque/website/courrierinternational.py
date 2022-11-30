@@ -65,7 +65,7 @@ class CourrierInternational(Website):
 
         e = BeautifulSoup(c.content, features="lxml")
         magazine = e.find("div", attrs={"class": "magazine-tools"})
-        return magazine.find("a", attrs={"data-icon": "pdf"}).attrs["href"]
+        return magazine.find("a", attrs={"data-icon": "file-pdf"}).attrs["href"]
 
     def author(self, url: str):
         author = super().author(url)
