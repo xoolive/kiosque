@@ -11,6 +11,17 @@
 
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "cSpell.words": [
+      "connecter",
+      "courrier",
+      "elem",
+      "hebdo",
+      "kiosque",
+      "lxml",
+      "pypandoc",
+      "pyperclip",
+      "referer"
+    ]
   }
 }
