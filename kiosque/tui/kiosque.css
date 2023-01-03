@@ -24,6 +24,7 @@ Entry:hover {
 
 Entry:focus {
     border: tall #f58518;
+    text-style: bold;
 }
 
 Entry:focus-within {

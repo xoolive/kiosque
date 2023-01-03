@@ -3,16 +3,13 @@ from __future__ import annotations
 import webbrowser
 
 import pandas as pd
-
 import pyperclip
-
-
-# -- Textual imports --
+from rich.text import Text
 from textual import events
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
-from textual.widgets import Footer, Header, Static, Button
+from textual.widgets import Button, Footer, Header, Static
 
 from ..api.pocket import PocketAPI
 
@@ -20,7 +17,13 @@ from ..api.pocket import PocketAPI
 
 
 class TextDisplay(Static):
-    pass
+    def __init__(self, text, id=None, **kwargs):
+        self.text = text
+        self.kwargs = kwargs
+        super().__init__(id=id)
+
+    def compose(self) -> ComposeResult:
+        yield Static(Text(self.text, **self.kwargs))
 
 
 class Entry(Button):
@@ -41,11 +44,11 @@ class Entry(Button):
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
-            TextDisplay(self.title, id="title"),
+            TextDisplay(self.title, id="title", overflow="ellipsis"),
             TextDisplay(f"{self.added:%d %b %y}", id="date"),
             id="entrytitle",
         )
-        yield TextDisplay(self.url, id="url")
+        yield TextDisplay(self.url, id="url", overflow="ellipsis")
         yield TextDisplay(self.excerpt, id="excerpt")
 
 
