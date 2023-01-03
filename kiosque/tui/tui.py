@@ -1,222 +1,153 @@
 from __future__ import annotations
 
 import webbrowser
-from dataclasses import dataclass, field
 
 import pandas as pd
+
 import pyperclip
 
-# -- Rich imports --
-from rich.console import Console, ConsoleOptions, RenderableType, RenderResult
-from rich.markdown import Markdown
-from rich.padding import Padding
-from rich.panel import Panel
-from rich.table import Table
 
 # -- Textual imports --
-from textual import events, layout
-from textual.app import App
-from textual.keys import Keys
-from textual.reactive import Reactive
-from textual.widget import Widget
-from textual.widgets import Footer, Header, ScrollView
+from textual import events
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Container, Horizontal
+from textual.widgets import Footer, Header, Static, Button
 
 from ..api.pocket import PocketAPI
-from ..core.website import Website
+
+# from ..core.website import Website
 
 
-@dataclass
-class Entry:
-    item_id: str
-    title: str
-    url: str
-    added: pd.Timestamp
-    excerpt: str
-    selected: bool = field(default=False)
+class TextDisplay(Static):
+    pass
 
-    def __rich_console__(
-        self, console: Console, options: ConsoleOptions
-    ) -> RenderResult:
-        content_table = Table.grid(padding=(0, 1), expand=True)
 
-        content_table.add_column("title", justify="left", ratio=1, no_wrap=True)
-        content_table.add_column("date", justify="right", width=8)
+class Entry(Button):
+    def __init__(
+        self,
+        title: str,
+        url: str,
+        added: pd.Timestamp,
+        excerpt: str,
+        item_id: str,
+    ):
+        self.title = title
+        self.url = url
+        self.added = added
+        self.excerpt = excerpt
+        self.item_id = item_id
+        super().__init__()
 
-        content_table.add_row(
-            self.title,
-            f"{self.added:%d %b %y}",
-            style="yellow" if self.selected else "default",
+    def compose(self) -> ComposeResult:
+        yield Horizontal(
+            TextDisplay(self.title, id="title"),
+            TextDisplay(f"{self.added:%d %b %y}", id="date"),
+            id="entrytitle",
         )
-        content_table.add_row(self.url, style="blue")
-
-        yield Panel(
-            content_table,
-            height=4,
-            border_style="yellow" if self.selected else "default",
-        )
+        yield TextDisplay(self.url, id="url")
+        yield TextDisplay(self.excerpt, id="excerpt")
 
 
-@dataclass
-class Entries:
-    entries: list[Entry]
+class Kiosque(App):
 
-    def __len__(self):
-        return len(self.entries)
+    CSS_PATH = "kiosque.css"
+    BINDINGS = [
+        ("q,escape", "quit", "Quit"),
+        Binding("g", "top", "Top", show=False),
+        Binding("G", "bottom", "Bottom", show=False),
+        Binding("j", "down", "Down", show=False),
+        Binding("k", "up", "Up", show=False),
+        Binding("ctrl+d", "down(5)", "Down by 5", show=False),
+        Binding("ctrl+u", "up(5)", "Up by 5", show=False),
+        Binding("o,enter", "enter", "Open in browser"),
+        ("c", "copy", "Copy URL"),
+        ("D", "delete", "Delete"),
+        ("e", "archive", "Archive"),
+        ("r", "refresh", "Refresh"),
+        ("s", "save", "Save in file"),
+    ]
 
-    def __rich_console__(
-        self, console: Console, options: ConsoleOptions
-    ) -> RenderResult:
-        yield from self.entries
+    async def on_load(self, event: events.Load) -> None:
+        """Sent before going in to application mode."""
+        self.pocket = PocketAPI()
 
-
-class BookmarksWidget(Widget):
-
-    selected_index: Reactive[int] = Reactive(0)
-
-    def __init__(self, name: str | None, pocket: PocketAPI) -> None:
-        super().__init__(name=name)
-        self.pocket = pocket
-        entries = list(
+    def retrieve(self) -> None:
+        self.pocket.retrieve()
+        self.entries = list(
             Entry(
-                item_id=elt["item_id"],
                 title=elt.get("resolved_title", elt["given_title"]),
                 url=elt.get("resolved_url", elt["given_url"]),
                 added=pd.Timestamp(int(elt.get("time_added")), unit="s"),
                 excerpt=elt.get("excerpt", ""),
+                item_id=elt["item_id"],
             )
             for elt in self.pocket
         )
-        self.entries = Entries(entries)
-        self.entries.entries[self.selected_index].selected = True
+        self.entries[0].focus()
 
-    def render(self) -> RenderableType:
-        return Padding(self.entries)
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Footer()
 
-    def action_up(self):
-        self.entries.entries[self.selected_index].selected = False
-        self.selected_index = max(self.selected_index - 1, 0)
-        self.entries.entries[self.selected_index].selected = True
+        self.retrieve()
+        yield Container(*self.entries, id="entries")
 
-    def action_down(self):
-        self.entries.entries[self.selected_index].selected = False
-        self.selected_index = min(
-            self.selected_index + 1, len(self.entries) - 1
-        )
-        self.entries.entries[self.selected_index].selected = True
+    def action_up(self, by=1) -> None:
+        for i, entry in enumerate(self.entries):
+            if entry.has_focus:
+                break
+        self.entries[max(i - by, 0)].focus()
 
-    def action_copy(self):
-        pyperclip.copy(self.entries.entries[self.selected_index].url)
+    def action_down(self, by=1) -> None:
+        for i, entry in enumerate(self.entries):
+            if entry.has_focus:
+                break
+        self.entries[min(i + by, len(self.entries) - 1)].focus()
 
-    def action_enter(self):
-        webbrowser.open(self.entries.entries[self.selected_index].url)
+    def action_top(self) -> None:
+        self.entries[0].focus()
 
-    def action_archive(self):
-        self.pocket.archive(self.entries.entries[self.selected_index].item_id)
-        del self.entries.entries[self.selected_index]
-        self.selected_index = min(self.selected_index, len(self.entries) - 1)
+    def action_bottom(self) -> None:
+        self.entries[-1].focus()
 
-    def action_delete(self):
-        self.pocket.delete(self.entries.entries[self.selected_index].item_id)
-        del self.entries.entries[self.selected_index]
-        self.selected_index = min(self.selected_index, len(self.entries) - 1)
+    def action_copy(self) -> None:
+        current = next(entry for entry in self.entries if entry.has_focus)
+        pyperclip.copy(current.url if current is not None else "nothing")
 
-    def action_refresh(self):
-        self.pocket.retrieve()
-        self.selected_index = min(self.selected_index, len(self.entries) - 1)
+    def action_enter(self) -> None:
+        current = next(entry for entry in self.entries if entry.has_focus)
+        webbrowser.open(current.url)
 
-    def action_save(self):
-        url = self.entries.entries[self.selected_index].url
-        Website.instance(url).write_text(url)
+    def action_archive(self) -> None:
+        current = next(entry for entry in self.entries if entry.has_focus)
+        self.pocket.archive(current.item_id)
+        current.remove()
+        self.entries.remove(current)
 
+    def action_delete(self) -> None:
+        current = next(entry for entry in self.entries if entry.has_focus)
+        self.pocket.delete(current.item_id)
+        current.remove()
+        self.entries.remove(current)
 
-class PreviewBox(Widget):
-    def __init__(self, name: str | None, content: Markdown) -> None:
-        super().__init__(name=name)
-        self.content = content
+    def action_refresh(self) -> None:
+        for entry in self.entries:
+            entry.remove()
+        self.retrieve()
+        container = self.query_one("#entries")
+        for entry in self.entries:
+            container.mount(entry)
+        self.action_top()
 
-    def render(self) -> RenderableType:
-        return Padding(self.content)
-
-
-class Kiosque(App):
-    async def on_load(self, event: events.Load) -> None:
-        """Sent before going in to application mode."""
-
-        # Bind our basic keys
-        await self.bind("q", "quit", "Quit")
-        await self.bind("escape", "quit", show=False)
-        await self.bind("j, down", "down()", show=False)
-        await self.bind("k, up", "up()", show=False)
-        await self.bind("o", "enter()", "Open")
-        await self.bind(Keys.Enter, "enter()", show=False)
-        await self.bind("c", "copy", "Copy URL")
-        await self.bind("e", "archive", "Archive")
-        await self.bind("d", "delete", "Delete")
-        await self.bind("r", "refresh", "Refresh")
-        await self.bind("s", "save", "Save")
-
-        self.pocket = PocketAPI()
-        self.bookmarks = BookmarksWidget(name="bookmarks", pocket=self.pocket)
-        self.excerpt = PreviewBox(
-            name="preview", content=Markdown("content " * 2000)
-        )
-
-        self.bookmarkview = ScrollView(self.bookmarks)
-        self.preview = ScrollView(self.excerpt)
-
-    async def on_mount(self, event: events.Mount) -> None:
-        """Call after terminal goes in to application mode"""
-
-        # Dock our widgets
-        await self.view.dock(Header(), edge="top")
-        await self.view.dock(Footer(), edge="bottom")
-
-        # two_views = DockView(name="main")
-        # await two_views.dock(self.bookmarkview, edge="top")
-        # await two_views.dock(self.preview)
-        # await self.view.dock(two_views, edge="top")
-
-        # TODO
-        # build a view
-        # attach two subviews
-        # dock the view
-        await self.view.dock(self.bookmarkview, self.preview, edge="top")
-
-    async def action_up(self) -> None:
-        self.bookmarks.action_up()
-        self.refresh()
-
-    async def action_down(self) -> None:
-        self.bookmarks.action_down()
-        self.refresh()
-
-    async def action_copy(self) -> None:
-        self.bookmarks.action_copy()
-
-    async def action_enter(self) -> None:
-        self.bookmarks.action_enter()
-
-    async def action_archive(self) -> None:
-        self.bookmarks.action_archive()
-        self.bookmarks.refresh(layout=True)
-        self.refresh()
-
-    async def action_delete(self) -> None:
-        self.bookmarks.action_delete()
-        self.bookmarks.refresh(layout=True)
-        self.refresh()
-
-    async def action_refresh(self) -> None:
-        self.bookmarks.action_refresh()
-        self.bookmarks.refresh(layout=True)
-        self.refresh()
-
-    async def action_save(self) -> None:
-        self.bookmarks.action_save()
+    def action_save(self) -> None:
+        # Website.instance(url).write_text(url)
+        pass
 
 
-def main():
-    Kiosque.run(title="Kiosque", log="kiosque.log")
+def main() -> None:
+    app = Kiosque()
+    app.run()
 
 
 if __name__ == "__main__":

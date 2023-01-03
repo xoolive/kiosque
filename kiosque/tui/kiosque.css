@@ -1,0 +1,57 @@
+Kiosque {
+    layout: horizontal;
+    background: $boost;
+    height: 5;
+    margin: 1;
+    min-width: 50;
+    padding: 1;
+}
+
+Entry {
+    content-align: left top;
+    height: 9;
+    width: 100%;
+    margin: 0;
+    padding-left: 1;
+    padding-right: 1;
+    border: solid #4c78ae;
+}
+
+Entry:hover {
+    /* do not edit anything */
+    border: solid #4c78ae;
+}
+
+Entry:focus {
+    border: tall #f58518;
+}
+
+Entry:focus-within {
+    background: $boost;
+}
+
+#entrytitle {
+    layout: horizontal;
+    height: 1;
+}
+
+#date {
+    dock: right;
+    max-width: 10;
+    text-align: right;
+}
+#title {
+    dock: left;
+    text-align: left;
+    text-style: bold;
+    height: 1;
+}
+#url {
+    color: #9ecae9;
+    height: 1;
+    width: 90%
+}
+#excerpt {
+    color: #79706e;
+    text-style: italic;
+}
