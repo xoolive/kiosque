@@ -110,6 +110,7 @@ class Kiosque(App):
 
     def action_top(self) -> None:
         self.entries[0].focus()
+        self.screen.scroll_home()
 
     def action_bottom(self) -> None:
         self.entries[-1].focus()
