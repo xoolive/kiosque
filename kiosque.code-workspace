@@ -10,18 +10,18 @@
     "python.formatting.provider": "black",
 
     "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "cSpell.words": [
-      "connecter",
-      "courrier",
-      "elem",
-      "hebdo",
-      "kiosque",
-      "lxml",
-      "pypandoc",
-      "pyperclip",
-      "referer"
+    "python.testing.pytestEnabled": true
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Pour la science",
+        "program": "kiosque",
+        "args": ["pls"],
+        "type": "python",
+        "request": "launch"
+      }
     ]
   }
 }
