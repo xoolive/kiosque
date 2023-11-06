@@ -21,7 +21,6 @@ node_attrs_type = Dict[str, Union[str, List[str]]]
 
 
 class Website:
-
     known_websites: list[Type[Website]] = list()
 
     alias: list[str] = list()
@@ -126,7 +125,15 @@ class Website:
         if self.connected or login_dict == {}:
             return None
 
-        c = session.post(self.login_url, data=login_dict)
+        c = session.post(
+            self.login_url,
+            data=login_dict,
+            headers={
+                **session.headers,
+                "Origin": self.base_url,
+                "Referer": self.base_url,
+            },
+        )
         c.raise_for_status()
         self.__class__.connected = True
         return c

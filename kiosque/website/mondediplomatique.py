@@ -8,9 +8,9 @@ from ..core.session import session
 
 
 class MondeDiplomatique(Website):
-
     base_url = "https://www.monde-diplomatique.fr/"
-    login_url = "https://lecteurs.mondediplo.net/?page=connexion_sso"
+    # login_url = "https://lecteurs.mondediplo.net/?page=connexion_sso"
+    login_url = "https://www.monde-diplomatique.fr/load_mon_compte"
     alias = ["diplomatique", "diplo"]
 
     description_meta = {"name": ["description"]}
@@ -25,26 +25,42 @@ class MondeDiplomatique(Website):
         credentials = self.credentials
         assert credentials is not None
 
-        c = session.get(self.login_url)
+        c = session.get(self.base_url)
+        c.raise_for_status()
+
+        c = session.post(
+            "https://www.monde-diplomatique.fr/load_mon_compte",
+            dict(
+                retour="https://www.monde-diplomatique.fr/",
+                erreur_connexion="",
+                triggerAjaxLoad="",
+            ),
+        )
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
-        attrs = dict(name="formulaire_action_args")
-        form_id = e.find("input", attrs=attrs).attrs["value"]
+        formulaire_action = e.find(
+            "input", attrs={"name": "formulaire_action"}
+        ).attrs["value"]
+        formulaire_action_args = e.find(
+            "input", attrs={"name": "formulaire_action_args"}
+        ).attrs["value"]
+        retour = e.find("input", attrs={"name": "retour"}).attrs["value"]
+        _jeton = e.find("input", attrs={"name": "_jeton"}).attrs["value"]
 
         return {
-            "formulaire_action": "identification_sso",
-            "formulaire_action_args": form_id,
-            "retour": "https://www.monde-diplomatique.fr/",
-            "site_distant": "https://www.monde-diplomatique.fr/",
+            "formulaire_action": formulaire_action,
+            "formulaire_action_args": formulaire_action_args,
+            "retour": retour,
+            "_jeton": _jeton,
             "valider": "Valider",
             "email": credentials["username"],
             "mot_de_passe": credentials["password"],
+            "email_nobot": "",
         }
 
     @lru_cache()
     def latest_issue_url(self):
-
         c = session.get(self.base_url)
         c.raise_for_status()
 

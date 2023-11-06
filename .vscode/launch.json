@@ -19,6 +19,14 @@
       "module": "kiosque",
       "args": ["courrier"],
       "justMyCode": true
+    },
+    {
+      "name": "Kiosque: Le Monde Diplomatique",
+      "type": "python",
+      "request": "launch",
+      "module": "kiosque",
+      "args": ["diplo"],
+      "justMyCode": true
     }
   ]
 }
