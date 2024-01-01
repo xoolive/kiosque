@@ -30,7 +30,6 @@ Entry:focus {
     border: tall #f58518;
     text-style: bold;
 }
-
 Entry:focus-within {
     background: $boost;
 }
@@ -59,4 +58,7 @@ Entry:focus-within {
 #excerpt {
     color: #79706e;
     text-style: italic;
+}
+.fading * {
+    text-opacity: 25%
 }
