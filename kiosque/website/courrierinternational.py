@@ -4,12 +4,11 @@ from functools import lru_cache
 
 from bs4 import BeautifulSoup
 
-from ..core.session import session
+from ..core.client import client
 from ..core.website import Website
 
 
 class CourrierInternational(Website):
-
     base_url = "https://www.courrierinternational.com/"
     login_url = base_url + "login?destination=<front>"
     alias = ["courrier"]
@@ -33,7 +32,7 @@ class CourrierInternational(Website):
         credentials = self.credentials
         assert credentials is not None
 
-        c = session.get(self.login_url)
+        c = client.get(self.login_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -52,15 +51,14 @@ class CourrierInternational(Website):
 
     @lru_cache()
     def latest_issue_url(self):
-
-        c = session.get(self.base_url)
+        c = client.get(self.base_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
         section = e.find("section", attrs={"class": "hebdo-section"})
         page_url = section.find("a").attrs["href"]
 
-        c = session.get(page_url)
+        c = client.get(page_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")

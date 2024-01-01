@@ -1,16 +1,22 @@
 {
   "folders": [{ "path": "." }],
   "settings": {
-    "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.linting.mypyEnabled": true,
-    "python.linting.enabled": true,
+    "python.analysis.inlayHints.pytestParameters": true,
+    "python.analysis.inlayHints.variableTypes": true,
 
     "editor.formatOnSave": true,
-    "python.formatting.provider": "black",
+    "editor.rulers": [80],
+    "mypy-type-checker.importStrategy": "fromEnvironment",
+    "ruff.importStrategy": "fromEnvironment",
 
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "[python]": {
+      "files.insertFinalNewline": true,
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.codeActionsOnSave": {
+        "source.organizeImports.ruff": "explicit",
+        "source.fixAll.ruff": "never"
+      }
+    }
   },
   "launch": {
     "version": "0.2.0",
@@ -19,6 +25,20 @@
         "name": "Pour la science",
         "program": "kiosque",
         "args": ["pls"],
+        "type": "python",
+        "request": "launch"
+      },
+      {
+        "name": "Le Monde diplomatique",
+        "program": "kiosque",
+        "args": ["lmd"],
+        "type": "python",
+        "request": "launch"
+      },
+      {
+        "name": "Courrier international",
+        "program": "kiosque",
+        "args": ["courrier"],
         "type": "python",
         "request": "launch"
       }

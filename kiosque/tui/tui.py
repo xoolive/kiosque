@@ -8,12 +8,10 @@ from rich.text import Text
 from textual import events
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal
+from textual.containers import Horizontal, VerticalScroll
 from textual.widgets import Button, Footer, Header, Static
 
-from ..api.pocket import PocketAPI
-
-# from ..core.website import Website
+from ..api.pocket import PocketAPI, PocketRetrieveEntry
 
 
 class TextDisplay(Static):
@@ -27,19 +25,12 @@ class TextDisplay(Static):
 
 
 class Entry(Button):
-    def __init__(
-        self,
-        title: str,
-        url: str,
-        added: pd.Timestamp,
-        excerpt: str,
-        item_id: str,
-    ):
-        self.title = title
-        self.url = url
-        self.added = added
-        self.excerpt = excerpt
-        self.item_id = item_id
+    def __init__(self, elt: PocketRetrieveEntry):
+        self.title = elt.get("resolved_title", elt["given_title"])
+        self.url = elt.get("resolved_url", elt["given_url"])
+        self.added = pd.Timestamp(int(elt["time_added"]), unit="s")
+        self.excerpt = elt.get("excerpt", "")
+        self.item_id = elt["item_id"]
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -53,9 +44,8 @@ class Entry(Button):
 
 
 class Kiosque(App):
-
     CSS_PATH = "kiosque.css"
-    BINDINGS = [
+    BINDINGS = [  # noqa: RUF012
         ("q,escape", "quit", "Quit"),
         Binding("g", "top", "Top", show=False),
         Binding("G", "bottom", "Bottom", show=False),
@@ -71,30 +61,22 @@ class Kiosque(App):
         ("s", "save", "Save in file"),
     ]
 
-    async def on_load(self, event: events.Load) -> None:
+    def on_load(self, event: events.Load) -> None:
         """Sent before going in to application mode."""
         self.pocket = PocketAPI()
+        self.entries: list[Entry] = []
 
-    def retrieve(self) -> None:
-        self.pocket.retrieve()
-        self.entries = list(
-            Entry(
-                title=elt.get("resolved_title", elt["given_title"]),
-                url=elt.get("resolved_url", elt["given_url"]),
-                added=pd.Timestamp(int(elt.get("time_added")), unit="s"),
-                excerpt=elt.get("excerpt", ""),
-                item_id=elt["item_id"],
-            )
-            for elt in self.pocket
-        )
-        self.entries[0].focus()
+    async def on_mount(self) -> None:
+        await self.action_refresh()
+
+    async def retrieve(self) -> None:
+        json = await self.pocket.async_retrieve()
+        self.entries = list(Entry(elt) for elt in json["list"].values())
 
     def compose(self) -> ComposeResult:
         yield Header()
         yield Footer()
-
-        self.retrieve()
-        yield Container(*self.entries, id="entries")
+        yield VerticalScroll(id="entries")
 
     def action_up(self, by=1) -> None:
         for i, entry in enumerate(self.entries):
@@ -123,26 +105,29 @@ class Kiosque(App):
         current = next(entry for entry in self.entries if entry.has_focus)
         webbrowser.open(current.url)
 
-    def action_archive(self) -> None:
+    async def action_archive(self) -> None:
         current = next(entry for entry in self.entries if entry.has_focus)
-        self.pocket.archive(current.item_id)
+        await self.pocket.async_action("archive", current.item_id)
         current.remove()
         self.entries.remove(current)
+        self.title = f"Kiosque ({len(self.entries)})"
 
-    def action_delete(self) -> None:
+    async def action_delete(self) -> None:
         current = next(entry for entry in self.entries if entry.has_focus)
-        self.pocket.delete(current.item_id)
+        await self.pocket.async_action("delete", current.item_id)
         current.remove()
         self.entries.remove(current)
+        self.title = f"Kiosque ({len(self.entries)})"
 
-    def action_refresh(self) -> None:
+    async def action_refresh(self) -> None:
         for entry in self.entries:
             entry.remove()
-        self.retrieve()
+        await self.retrieve()
         container = self.query_one("#entries")
         for entry in self.entries:
             container.mount(entry)
         self.action_top()
+        self.title = f"Kiosque ({len(self.entries)})"
 
     def action_save(self) -> None:
         # Website.instance(url).write_text(url)

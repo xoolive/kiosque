@@ -7,6 +7,10 @@ Kiosque {
     padding: 1;
 }
 
+VerticalScroll {
+    height: 1fr;
+}
+
 Entry {
     content-align: left top;
     height: 9;

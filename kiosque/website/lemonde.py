@@ -1,11 +1,10 @@
 from bs4 import BeautifulSoup
 
+from ..core.client import client
 from ..core.website import Website
-from ..core.session import session
 
 
 class LeMonde(Website):
-
     base_url = "https://www.lemonde.fr/"
     login_url = "https://secure.lemonde.fr/sfuser/connexion"
     alias = ["lemonde"]
@@ -25,7 +24,7 @@ class LeMonde(Website):
         credentials = self.credentials
         assert credentials is not None
 
-        c = session.get(self.login_url)
+        c = client.get(self.login_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -47,9 +46,7 @@ class LeMonde(Website):
         if article is None:
             article = e.find("section", attrs={"class": "article__content"})
         else:
-            embedded = article.find(
-                "section", attrs={"class": "article__content"}
-            )
+            embedded = article.find("section", attrs={"class": "article__content"})
             if embedded is not None:
                 article = embedded
 

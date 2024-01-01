@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from ..core.session import session
+from ..core.client import client
 from ..core.website import Website
 
 
@@ -14,9 +14,7 @@ class LesEchos(Website):
     def login_dict(self):
         credentials = self.credentials
         assert credentials is not None
-        return dict(
-            email=credentials["username"], password=credentials["password"]
-        )
+        return dict(email=credentials["username"], password=credentials["password"])
 
     def login(self):
         # Not sure whether it is a requests bug, but some cookies seem to
@@ -34,14 +32,14 @@ class LesEchos(Website):
                 name=cookie["name"],
                 value=str(cookie["value"]),
             )
-            session.cookies.set_cookie(cookie_obj)
+            client.cookies.set_cookie(cookie_obj)
 
         cookie_obj = requests.cookies.create_cookie(
             domain="lesechos.fr",
             name="authentication",
             value=json.dumps(cookies_as_json),
         )
-        session.cookies.set_cookie(cookie_obj)
+        client.cookies.set_cookie(cookie_obj)
 
     def author(self, url):
         article = self.article(url)

@@ -3,8 +3,8 @@ from urllib.parse import unquote
 
 from bs4 import BeautifulSoup
 
+from ..core.client import client
 from ..core.website import Website
-from ..core.session import session
 
 
 class MondeDiplomatique(Website):
@@ -25,12 +25,12 @@ class MondeDiplomatique(Website):
         credentials = self.credentials
         assert credentials is not None
 
-        c = session.get(self.base_url)
+        c = client.get(self.base_url)
         c.raise_for_status()
 
-        c = session.post(
+        c = client.post(
             "https://www.monde-diplomatique.fr/load_mon_compte",
-            dict(
+            json=dict(
                 retour="https://www.monde-diplomatique.fr/",
                 erreur_connexion="",
                 triggerAjaxLoad="",
@@ -39,9 +39,9 @@ class MondeDiplomatique(Website):
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
-        formulaire_action = e.find(
-            "input", attrs={"name": "formulaire_action"}
-        ).attrs["value"]
+        formulaire_action = e.find("input", attrs={"name": "formulaire_action"}).attrs[
+            "value"
+        ]
         formulaire_action_args = e.find(
             "input", attrs={"name": "formulaire_action_args"}
         ).attrs["value"]
@@ -61,14 +61,14 @@ class MondeDiplomatique(Website):
 
     @lru_cache()
     def latest_issue_url(self):
-        c = session.get(self.base_url)
+        c = client.get(self.base_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
 
         current = e.find("a", attrs={"id": "entree-numero"}).attrs["href"]
 
-        c = session.get(self.base_url + current)
+        c = client.get(self.base_url + current)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -79,8 +79,5 @@ class MondeDiplomatique(Website):
 
     def file_name(self, c) -> str:
         return unquote(
-            c.headers["Content-Disposition"]
-            .split(";")[1]
-            .split("=")[1]
-            .strip('"')
+            c.headers["Content-Disposition"].split(";")[1].split("=")[1].strip('"')
         )

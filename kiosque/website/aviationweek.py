@@ -4,7 +4,7 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from ..core.session import session
+from ..core.client import client
 from ..core.website import Website
 
 
@@ -23,7 +23,7 @@ class AviationWeek(Website):
 
         logging.info(f"Logging in at {self.login_url}")
 
-        c = session.get("https://aviationweek.auth0.com/login")
+        c = client.get("https://aviationweek.auth0.com/login")
         c.raise_for_status()
 
         index = c.url.find("?") + 1
@@ -44,11 +44,11 @@ class AviationWeek(Website):
             "connection": "Username-Password-Authentication",
         }
 
-        c = session.post(post_url, data=payload)
+        c = client.post(post_url, data=payload)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
-        c = session.post(
+        c = client.post(
             "https://aviationweek.auth0.com/login/callback",
             data=dict(
                 (elt.attrs["name"], elt.attrs["value"])

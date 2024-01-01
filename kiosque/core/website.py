@@ -8,14 +8,14 @@ from importlib import import_module
 from pathlib import Path
 from typing import Any, Dict, List, Type, Union
 
+import httpx
 import pandas as pd
 import pypandoc
-import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
+from .client import client
 from .config import config_dict
-from .session import session
 
 node_attrs_type = Dict[str, Union[str, List[str]]]
 
@@ -99,7 +99,7 @@ class Website:
                     return cls.known_websites[-1]()
 
         # -- Attempt to access the website, and fetch for the real URL --
-        c = session.get(url_or_alias)
+        c = client.get(url_or_alias)
         c.raise_for_status()
         e = BeautifulSoup(c.content, features="lxml")
         new_url = e.find("meta", {"property": "og:url"}).attrs["content"]
@@ -115,8 +115,8 @@ class Website:
     def login_dict(self) -> dict[str, Any]:
         return {}
 
-    def login(self) -> requests.Response | None:
-        c = session.get(self.base_url)
+    def login(self) -> httpx.Response | None:
+        c = client.get(self.base_url)
         c.raise_for_status()
 
         logging.info(f"Logging in at {self.login_url}")
@@ -125,11 +125,11 @@ class Website:
         if self.connected or login_dict == {}:
             return None
 
-        c = session.post(
+        c = client.post(
             self.login_url,
             data=login_dict,
             headers={
-                **session.headers,
+                **client.headers,
                 "Origin": self.base_url,
                 "Referer": self.base_url,
             },
@@ -146,7 +146,7 @@ class Website:
             self.login()
         # Just in case this URL has been redirected...
         url = self.url_translation.get(url, url)
-        c = session.get(url)
+        c = client.get(url)
         c.raise_for_status()
         return BeautifulSoup(c.content, features="lxml")
 
@@ -260,7 +260,7 @@ class Website:
         if not self.connected:
             self.login()
         url = self.latest_issue_url()
-        c = session.get(url)
+        c = client.get(url)
         return c
 
     def save_latest_issue(self):

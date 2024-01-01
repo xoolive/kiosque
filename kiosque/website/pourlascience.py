@@ -5,27 +5,25 @@ from urllib.parse import unquote
 
 from bs4 import BeautifulSoup
 
+from ..core.client import client
 from ..core.website import Website
-from ..core.session import session
 
 
 class PourLaScience(Website):
-
     base_url = "https://www.pourlascience.fr/"
     login_url = "https://sso.qiota.com/api/v1/login"
 
     @property
     def login_dict(self) -> dict[str, str]:
-
         credentials = self.credentials
         assert credentials is not None
 
-        c = session.get(self.base_url)
+        c = client.get(self.base_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
         form_url = e.find("a", attrs={"id": "connect_link"}).attrs["href"]
-        c = session.get(form_url)
+        c = client.get(form_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -48,19 +46,18 @@ class PourLaScience(Website):
 
     def login(self):
         super().login()
-        c = session.get(self.base_url + "login")
+        c = client.get(self.base_url + "login")
         c.raise_for_status()
 
     @lru_cache()
     def latest_issue_url(self):
-
-        c = session.get("https://www.pourlascience.fr/archives")
+        c = client.get("https://www.pourlascience.fr/archives")
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
         current = e.find("div", attrs={"class": "book"})
 
-        c = session.get(f"{current.find('a').attrs['href']}")
+        c = client.get(f"{current.find('a').attrs['href']}")
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -72,8 +69,5 @@ class PourLaScience(Website):
 
     def file_name(self, c) -> str:
         return unquote(
-            c.headers["Content-Disposition"]
-            .split(";")[2]
-            .split("=")[1]
-            .strip('"')[7:]
+            c.headers["Content-Disposition"].split(";")[2].split("=")[1].strip('"')[7:]
         )
