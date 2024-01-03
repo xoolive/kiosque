@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import webbrowser
 
+import httpx
 import pandas as pd
 import pyperclip
 from rich.text import Text
@@ -39,6 +40,14 @@ class Entry(Button):
         self.excerpt = elt.get("excerpt", "")
         self.item_id = elt["item_id"]
         super().__init__()
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Entry):
+            return self.item_id == other.item_id
+        return False
+
+    def __hash__(self) -> int:
+        return int(self.item_id)
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
@@ -85,26 +94,26 @@ class Kiosque(App):
         self.entries: list[Entry] = []
 
     async def on_mount(self) -> None:
-        # await self.action_refresh()
-        self.timer = self.set_interval(60, self.action_refresh)
+        await self.action_refresh()
+        self.timer = self.set_interval(5, self.action_refresh)
 
     async def retrieve(self) -> list[Entry]:
         json = await self.pocket.async_retrieve()
-        self.entries = list(Entry(elt) for elt in json["list"].values())
-        self.title = f"Kiosque ({len(self.entries)})"
-        return self.entries
+        entries = list(Entry(elt) for elt in json["list"].values())
+        self.title = f"Kiosque ({len(entries)})"
+        return entries
 
     async def delete(self, entry: Entry) -> None:
+        container = self.query_one("#entries", VerticalScroll)
         await self.pocket.async_action("delete", entry.item_id)
-        self.entries.remove(entry)
-        self.title = f"Kiosque ({len(self.entries)})"
         entry.remove()
+        self.title = f"Kiosque ({len(container.children)})"
 
     async def archive(self, entry: Entry) -> None:
+        container = self.query_one("#entries", VerticalScroll)
         await self.pocket.async_action("archive", entry.item_id)
-        self.entries.remove(entry)
-        self.title = f"Kiosque ({len(self.entries)})"
         entry.remove()
+        self.title = f"Kiosque ({len(container.children)})"
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -112,30 +121,47 @@ class Kiosque(App):
         yield VerticalScroll(id="entries")
 
     def action_up(self, by=1) -> None:
-        for i, entry in enumerate(self.entries):
+        container = self.query_one("#entries", VerticalScroll)
+        for i, entry in enumerate(container.children):
             if entry.has_focus:
                 break
-        self.entries[max(i - by, 0)].focus()
+        container.children[max(i - by, 0)].focus()
 
     def action_down(self, by=1) -> None:
-        for i, entry in enumerate(self.entries):
+        container = self.query_one("#entries", VerticalScroll)
+        for i, entry in enumerate(container.children):
             if entry.has_focus:
                 break
-        self.entries[min(i + by, len(self.entries) - 1)].focus()
+        container.children[min(i + by, len(container.children) - 1)].focus()
 
     def action_top(self) -> None:
-        self.entries[0].focus()
+        container = self.query_one("#entries", VerticalScroll)
+        if len(container.children) > 0:
+            container.children[0].focus()
 
     def action_bottom(self) -> None:
-        self.entries[-1].focus()
+        container = self.query_one("#entries", VerticalScroll)
+        if len(container.children) > 0:
+            container.children[-1].focus()
 
     async def action_refresh(self) -> None:
         container = self.query_one("#entries", VerticalScroll)
-        for entry in self.entries:
-            entry.remove()
-        for entry in await self.retrieve():
-            container.mount(entry)
-        self.action_top()
+        try:
+            new_entries = await self.retrieve()
+        except httpx.ReadTimeout:
+            return
+        for entry in container.children:
+            if entry not in new_entries:
+                entry.remove()
+        if len(container.children) == 0:
+            for entry in new_entries:
+                await container.mount(entry)
+            container.children[0].focus()
+        else:
+            for entry in new_entries[::-1]:
+                if entry not in container.children:
+                    await container.mount(entry, before=container.children[0])
+                    entry.focus()
 
 
 def main() -> None:
