@@ -1,18 +1,22 @@
 from __future__ import annotations
 
+import logging
+import re
 import webbrowser
 
-import httpx
 import pandas as pd
 import pyperclip
 from rich.text import Text
-from textual import events
+from textual import events, on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, VerticalScroll
-from textual.widgets import Button, Footer, Header, Static
+from textual.logging import TextualHandler
+from textual.widgets import Button, Footer, Header, Input, Static
 
 from kiosque.api.pocket import PocketAPI, PocketRetrieveEntry
+
+logging.basicConfig(handlers=[TextualHandler()])
 
 
 class TextDisplay(Static):
@@ -23,6 +27,19 @@ class TextDisplay(Static):
 
     def compose(self) -> ComposeResult:
         yield Static(Text(self.text, **self.kwargs))
+
+
+class SearchBar(Input):
+    BINDINGS = [  # noqa: RUF012
+        Binding("escape", "clear", show=False)
+    ]
+
+    async def action_clear(self) -> None:
+        self.clear()
+        container = self.app.query_one(VerticalScroll)
+        for child in container.children:
+            child.focus()
+            break
 
 
 class Entry(Button):
@@ -49,6 +66,15 @@ class Entry(Button):
     def __hash__(self) -> int:
         return int(self.item_id)
 
+    def match(self, pattern: str) -> bool:
+        if pattern == "":
+            return True
+        if next(re.finditer(pattern, self.title, re.IGNORECASE), None):
+            return True
+        if next(re.finditer(pattern, self.url, re.IGNORECASE), None):
+            return True
+        return False
+
     def compose(self) -> ComposeResult:
         yield Horizontal(
             TextDisplay(self.title, id="title", overflow="ellipsis"),
@@ -65,11 +91,13 @@ class Entry(Button):
         webbrowser.open(self.url)
 
     async def action_archive(self) -> None:
+        self.notify(f"Archive entry {self.item_id}")
         self.add_class("fading")
         self.app.screen.focus_next()
         await self.app.archive(self)  # type: ignore
 
     async def action_delete(self) -> None:
+        self.notify(f"Delete entry {self.item_id}")
         self.add_class("fading")
         self.app.screen.focus_next()
         await self.app.delete(self)  # type: ignore
@@ -79,6 +107,7 @@ class Kiosque(App):
     CSS_PATH = "kiosque.css"
     BINDINGS = [  # noqa: RUF012
         ("q,escape", "quit", "Quit"),
+        Binding("/", "search", "Search"),
         Binding("g", "top", "Top", show=False),
         Binding("G", "bottom", "Bottom", show=False),
         Binding("j", "down", "Down", show=False),
@@ -93,9 +122,23 @@ class Kiosque(App):
         self.pocket = PocketAPI()
         self.entries: list[Entry] = []
 
+    def action_search(self) -> None:
+        self.query_one(Input).focus()
+
+    @on(Input.Changed)
+    def filter_items(self) -> None:
+        container = self.query_one(VerticalScroll)
+        search_key = self.query_one(Input).value
+        for entry in container.children:
+            if isinstance(entry, Entry):
+                if entry.match(search_key):
+                    entry.remove_class("hidden")
+                else:
+                    entry.add_class("hidden")
+
     async def on_mount(self) -> None:
         await self.action_refresh()
-        self.timer = self.set_interval(5, self.action_refresh)
+        self.timer = self.set_interval(3600, self.action_refresh)
 
     async def retrieve(self) -> list[Entry]:
         json = await self.pocket.async_retrieve()
@@ -104,13 +147,13 @@ class Kiosque(App):
         return entries
 
     async def delete(self, entry: Entry) -> None:
-        container = self.query_one("#entries", VerticalScroll)
+        container = self.query_one(VerticalScroll)
         await self.pocket.async_action("delete", entry.item_id)
         entry.remove()
         self.title = f"Kiosque ({len(container.children)})"
 
     async def archive(self, entry: Entry) -> None:
-        container = self.query_one("#entries", VerticalScroll)
+        container = self.query_one(VerticalScroll)
         await self.pocket.async_action("archive", entry.item_id)
         entry.remove()
         self.title = f"Kiosque ({len(container.children)})"
@@ -118,37 +161,38 @@ class Kiosque(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield Footer()
+        yield SearchBar(placeholder="Search...")
         yield VerticalScroll(id="entries")
 
     def action_up(self, by=1) -> None:
-        container = self.query_one("#entries", VerticalScroll)
+        container = self.query_one(VerticalScroll)
         for i, entry in enumerate(container.children):
             if entry.has_focus:
                 break
         container.children[max(i - by, 0)].focus()
 
     def action_down(self, by=1) -> None:
-        container = self.query_one("#entries", VerticalScroll)
+        container = self.query_one(VerticalScroll)
         for i, entry in enumerate(container.children):
             if entry.has_focus:
                 break
         container.children[min(i + by, len(container.children) - 1)].focus()
 
     def action_top(self) -> None:
-        container = self.query_one("#entries", VerticalScroll)
+        container = self.query_one(VerticalScroll)
         if len(container.children) > 0:
             container.children[0].focus()
 
     def action_bottom(self) -> None:
-        container = self.query_one("#entries", VerticalScroll)
+        container = self.query_one(VerticalScroll)
         if len(container.children) > 0:
             container.children[-1].focus()
 
     async def action_refresh(self) -> None:
-        container = self.query_one("#entries", VerticalScroll)
+        container = self.query_one(VerticalScroll)
         try:
             new_entries = await self.retrieve()
-        except httpx.ReadTimeout:
+        except Exception:
             return
         for entry in container.children:
             if entry not in new_entries:
@@ -158,6 +202,8 @@ class Kiosque(App):
                 await container.mount(entry)
             container.children[0].focus()
         else:
+            n = sum(1 for e in new_entries if e not in container.children)
+            self.notify(f"Adding {n} entries")
             for entry in new_entries[::-1]:
                 if entry not in container.children:
                     await container.mount(entry, before=container.children[0])
