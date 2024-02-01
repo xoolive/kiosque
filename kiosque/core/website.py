@@ -265,6 +265,6 @@ class Website:
 
     def save_latest_issue(self):
         c = self.get_latest_issue()
-        full_path = Path(".") / self.file_name(c)
+        full_path = (Path(".") / self.file_name(c)).with_suffix(".pdf")
         full_path.write_bytes(c.content)
         print(f"File written: {full_path}")

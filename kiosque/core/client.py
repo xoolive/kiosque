@@ -1,6 +1,6 @@
 import httpx
 
-client = httpx.Client()
+client = httpx.Client(follow_redirects=True, timeout=None)
 client.headers.update(
     {
         "User-Agent": (
