@@ -51,9 +51,9 @@ class Entry(Button):
     ]
 
     def __init__(self, elt: PocketRetrieveEntry):
-        self.title = elt.get("resolved_title", elt["given_title"])
-        self.url = elt.get("resolved_url", elt["given_url"])
-        self.added = pd.Timestamp(int(elt["time_added"]), unit="s")
+        self.title = elt.get("resolved_title", elt.get("given_title", ""))
+        self.url = elt.get("resolved_url", elt.get("given_url", ""))
+        self.added = pd.Timestamp(int(elt.get("time_added", "")), unit="s")
         self.excerpt = elt.get("excerpt", "")
         self.item_id = elt["item_id"]
         super().__init__()
@@ -140,10 +140,17 @@ class Kiosque(App):
         await self.action_refresh()
         self.timer = self.set_interval(3600, self.action_refresh)
 
-    async def retrieve(self) -> list[Entry]:
-        json = await self.pocket.async_retrieve()
-        entries = list(Entry(elt) for elt in json["list"].values())
-        self.title = f"Kiosque ({len(entries)})"
+    async def retrieve(self, offset: int = 0) -> list[Entry]:
+        json = await self.pocket.async_retrieve(offset=offset)
+        entries = sorted(
+            (
+                Entry(elt)
+                for elt in json["list"].values()
+                if elt["status"] != "2"
+            ),
+            key=lambda elt: elt.added,
+            reverse=True,
+        )
         return entries
 
     async def delete(self, entry: Entry) -> None:
@@ -188,26 +195,38 @@ class Kiosque(App):
         if len(container.children) > 0:
             container.children[-1].focus()
 
-    async def action_refresh(self) -> None:
+    async def action_refresh(self, from_scratch=True) -> None:
         container = self.query_one(VerticalScroll)
-        try:
-            new_entries = await self.retrieve()
-        except Exception:
-            return
-        for entry in container.children:
-            if entry not in new_entries:
-                entry.remove()
         if len(container.children) == 0:
-            for entry in new_entries:
-                await container.mount(entry)
-            container.children[0].focus()
+            more_entries = True
+            offset = 0
+            while more_entries:
+                try:
+                    new_entries = await self.retrieve(offset=offset)
+                except Exception as exc:
+                    self.notify(f"Error: {exc}")
+                    return
+                if len(new_entries) == 0:
+                    more_entries = False
+                else:
+                    offset += 30
+                for entry in new_entries:
+                    await container.mount(entry)
+                else:
+                    container.children[0].focus()
         else:
+            new_entries = await self.retrieve(offset=0)
+            for widget in container.children:
+                if widget not in new_entries:
+                    widget.remove()
             n = sum(1 for e in new_entries if e not in container.children)
             self.notify(f"Adding {n} entries")
             for entry in new_entries[::-1]:
                 if entry not in container.children:
                     await container.mount(entry, before=container.children[0])
                     entry.focus()
+
+        self.title = f"Kiosque ({len(container.children)})"
 
 
 def main() -> None:

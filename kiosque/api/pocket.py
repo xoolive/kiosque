@@ -5,8 +5,7 @@ import httpx
 from ..core.config import config_dict
 
 
-class UnknownJSON(TypedDict):
-    ...
+class UnknownJSON(TypedDict): ...
 
 
 class PocketRetrieveEntry(TypedDict):
@@ -31,6 +30,7 @@ class PocketRetrieveEntry(TypedDict):
 
 
 class PocketRetrieveResponse(TypedDict):
+    maxActions: int
     status: Literal[0, 1]
     list: dict[str, PocketRetrieveEntry]
 
@@ -58,12 +58,17 @@ class PocketAPI:
     def __iter__(self) -> Iterator[PocketRetrieveEntry]:
         yield from self.json["list"].values()
 
-    def retrieve(self) -> PocketRetrieveResponse:
+    def retrieve(self, offset=30) -> PocketRetrieveResponse:
+        # https://getpocket.com/developer/docs/v3/retrieve
         r = self.client.post(
             "https://getpocket.com/v3/get",
             json={
                 "consumer_key": self.consumer_key,
                 "access_token": self.access_token,
+                "count": 30,
+                "offset": offset,
+                "total": 1,
+                "sort": "newest",
             },
             headers={
                 "Content-Type": "application/json",
@@ -74,12 +79,17 @@ class PocketAPI:
         self.json = r.json()
         return self.json
 
-    async def async_retrieve(self) -> PocketRetrieveResponse:
+    async def async_retrieve(self, offset=0) -> PocketRetrieveResponse:
         r = await self.async_client.post(
             "https://getpocket.com/v3/get",
             json={
                 "consumer_key": self.consumer_key,
                 "access_token": self.access_token,
+                "count": 30,
+                "offset": offset,
+                "total": 1,
+                "sort": "newest",
+                "state": "unread",
             },
             headers={
                 "Content-Type": "application/json",

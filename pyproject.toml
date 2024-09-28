@@ -1,8 +1,9 @@
-[tool.poetry]
+[project]
 name = "kiosque"
 version = "0.1.0"
 description = "Save newspaper articles in textual format"
-authors = ["Xavier Olive <git@xoolive.org>"]
+authors = [{ name = "Xavier Olive", email = "git@xoolive.org" }]
+requires-python = ">=3.12"
 license = "MIT"
 readme = "readme.md"
 classifiers = [
@@ -20,48 +21,49 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Typing :: Typed",
 ]
+dependencies = [
+  "appdirs>=1.4.4",
+  "bs4>=0.0.2",
+  "click>=8.1.7",
+  "httpx>=0.27.2",
+  "lxml>=5.3.0",
+  "pandas>=2.2.3",
+  "pypandoc>=1.13",
+  "pyperclip>=1.9.0",
+  "textual>=0.81.0",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 kiosque = 'kiosque:main'
 
-[tool.poetry.dependencies]
-python = ">=3.8,<4.0"
-httpx = "^0.26.0"
-bs4 = ">=0.0.1"
-lxml = ">=4.6.3"
-appdirs = ">=1.4.4"
-pypandoc = ">=1.6.3"
-click = ">=8.0.1"
-pandas = ">=1.3.1"  # TODO remove
-pyperclip = ">=1.8.2"
-textual = ">=0.9"
-
-[tool.poetry.group.dev.dependencies]
-typing-extensions = ">=3.10.0"
-mypy = ">=0.910"
-ruff = "^0.1.9"
-ipykernel = ">=6.13.0"
-textual-dev = "^1.3.0"
-
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+  "mypy>=1.11.2",
+  "pytest>=8.3.3",
+  "ruff>=0.6.8",
+  "textual-dev>=1.6.1",
+]
 
 [tool.ruff]
 select = [
-  "E", "W",  # pycodestyle
-  "F",  # pyflakes
-  "I",  # isort
-  "NPY",  # numpy
+  "E",
+  "W",   # pycodestyle
+  "F",   # pyflakes
+  "I",   # isort
+  "NPY", # numpy
   # "PD",  # pandas
   "DTZ", # flake8-datetimez
-  "RUF"
+  "RUF",
 ]
 line-length = 80
-target-version = "py39"
+target-version = "py312"
 
 [tool.mypy]
-python_version = 3.9
+python_version = "3.12"
 platform = "posix"
 
 check_untyped_defs = true
