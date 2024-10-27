@@ -138,10 +138,11 @@ class Kiosque(App):
 
     async def on_mount(self) -> None:
         await self.action_refresh()
-        self.timer = self.set_interval(3600, self.action_refresh)
+        self.timer = self.set_interval(600, self.action_refresh)
 
     async def retrieve(self, offset: int = 0) -> list[Entry]:
         json = await self.pocket.async_retrieve(offset=offset)
+
         entries = sorted(
             (
                 Entry(elt)
@@ -215,10 +216,14 @@ class Kiosque(App):
                 else:
                     container.children[0].focus()
         else:
-            new_entries = await self.retrieve(offset=0)
-            for widget in container.children:
-                if widget not in new_entries:
-                    widget.remove()
+            try:
+                new_entries = await self.retrieve(offset=0)
+            except Exception as exc:
+                self.notify(f"Error: {exc}")
+                return
+            # for widget in container.children:
+            #     if widget not in new_entries:
+            #         widget.remove()
             n = sum(1 for e in new_entries if e not in container.children)
             self.notify(f"Adding {n} entries")
             for entry in new_entries[::-1]:
