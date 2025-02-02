@@ -1,13 +1,16 @@
 import configparser
+import os
 from pathlib import Path
 from typing import Dict
 
 from appdirs import user_config_dir
 
-configuration_dir = Path(user_config_dir("kiosque"))
-configuration_file = configuration_dir / "kiosque.conf"
+config_dir = Path(user_config_dir("kiosque"))
+if xdg_config := os.getenv("XDG_CONFIG_HOME"):
+    config_dir = Path(xdg_config) / "kiosque"
+configuration_file = config_dir / "kiosque.conf"
 
-if not configuration_dir.exists():
+if not config_dir.exists():
     configuration_template = """
 # [https://www.nytimes.com/]
 # username =
@@ -20,7 +23,7 @@ if not configuration_dir.exists():
 
     """
 
-    configuration_dir.mkdir(parents=True)
+    config_dir.mkdir(parents=True)
     configuration_file.write_text(configuration_template)
 
 config = configparser.RawConfigParser()

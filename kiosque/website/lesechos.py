@@ -1,7 +1,5 @@
 import json
 
-import requests
-
 from ..core.client import client
 from ..core.website import Website
 
@@ -14,9 +12,12 @@ class LesEchos(Website):
     def login_dict(self):
         credentials = self.credentials
         assert credentials is not None
-        return dict(email=credentials["username"], password=credentials["password"])
+        return dict(
+            email=credentials["username"], password=credentials["password"]
+        )
 
     def login(self):
+        import requests
         # Not sure whether it is a requests bug, but some cookies seem to
         # require manual settings...
 
