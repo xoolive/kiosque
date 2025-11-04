@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import ClassVar
 
 from bs4 import BeautifulSoup
 
@@ -10,8 +11,8 @@ from ..core.website import Website
 
 class CourrierInternational(Website):
     base_url = "https://www.courrierinternational.com/"
-    login_url = base_url + "login?destination=<front>"
-    alias = ["courrier"]
+    login_url = "https://secure.courrierinternational.com/sfuser/connexion"
+    alias: ClassVar[list[str]] = ["courrier"]
 
     article_node = ("div", {"class": "article-text"})
 
@@ -34,6 +35,11 @@ class CourrierInternational(Website):
 
         c = client.get(self.login_url)
         c.raise_for_status()
+        return {
+            "email": credentials["username"],
+            "password": credentials["password"],
+            "submit-button": "Chargement...",
+        }
 
         e = BeautifulSoup(c.content, features="lxml")
         attrs = dict(name="form_build_id")
