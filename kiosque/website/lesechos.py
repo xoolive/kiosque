@@ -17,8 +17,7 @@ class LesEchos(Website):
         )
 
     def login(self):
-        import requests
-        # Not sure whether it is a requests bug, but some cookies seem to
+        # Not sure whether it is a httpx bug, but some cookies seem to
         # require manual settings...
 
         login_response = super().login()
@@ -28,19 +27,13 @@ class LesEchos(Website):
         cookies_as_json = login_response.json()
 
         for cookie in cookies_as_json["cookies"]:
-            cookie_obj = requests.cookies.create_cookie(
-                domain="lesechos.fr",
-                name=cookie["name"],
-                value=str(cookie["value"]),
+            client.cookies.set(
+                cookie["name"], str(cookie["value"]), domain="lesechos.fr"
             )
-            client.cookies.set_cookie(cookie_obj)
 
-        cookie_obj = requests.cookies.create_cookie(
-            domain="lesechos.fr",
-            name="authentication",
-            value=json.dumps(cookies_as_json),
+        client.cookies.set(
+            "authentication", json.dumps(cookies_as_json), domain="lesechos.fr"
         )
-        client.cookies.set_cookie(cookie_obj)
 
     def author(self, url):
         article = self.article(url)

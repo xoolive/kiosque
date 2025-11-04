@@ -11,9 +11,11 @@ class Rugbyrama(Website):
     def description(self, url):
         e = self.bs4(url)
         p = e.find("p", {"class": "article-full__chapo"})
-        for elem in p.find_all("span"):
-            elem.decompose()
-        return p.text.strip()
+        if p is not None:
+            for elem in p.find_all("span"):
+                elem.decompose()
+            return p.text.strip()
+        return ""
 
     def date(self, url):
         e = self.bs4(url)

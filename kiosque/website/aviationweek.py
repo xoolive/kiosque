@@ -1,8 +1,10 @@
 import logging
 import urllib
 from datetime import datetime
+from typing import ClassVar, cast
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
+from bs4._typing import _StrainableAttributes
 
 from ..core.client import client
 from ..core.website import Website
@@ -12,10 +14,12 @@ class AviationWeek(Website):
     base_url = "https://aviationweek.com/"
     login_url = "https://aviationweek.auth0.com/login"
 
-    title_meta = {"name": "title"}
-    description_meta = {"name": "description"}
+    title_meta: ClassVar[_StrainableAttributes] = {"name": "title"}
+    description_meta: ClassVar[_StrainableAttributes] = {"name": "description"}
 
-    clean_nodes = [("div", {"class": ["dfp-ad", "dfp-tag"]})]
+    clean_nodes: ClassVar[list[str | tuple[str, _StrainableAttributes]]] = [
+        ("div", {"class": ["dfp-ad", "dfp-tag"]})
+    ]
 
     def login(self):
         credentials = self.credentials
@@ -26,8 +30,8 @@ class AviationWeek(Website):
         c = client.get("https://aviationweek.auth0.com/login")
         c.raise_for_status()
 
-        index = c.url.find("?") + 1
-        url_params = urllib.parse.parse_qs(c.url[index:])
+        index = str(c.url).find("?") + 1
+        url_params = urllib.parse.parse_qs(str(c.url)[index:])
 
         post_url = "https://aviationweek.auth0.com/usernamepassword/login"
 
@@ -51,9 +55,9 @@ class AviationWeek(Website):
         c = client.post(
             "https://aviationweek.auth0.com/login/callback",
             data=dict(
-                (elt.attrs["name"], elt.attrs["value"])
+                (elt.attrs["name"], elt.attrs["value"])  # type: ignore
                 for elt in e.find_all("input")
-                if elt.get("name")
+                if cast(Tag, elt).get("name")
             ),
         )
         c.raise_for_status()
@@ -62,7 +66,8 @@ class AviationWeek(Website):
 
     def article(self, url):
         e = self.bs4(url)
-        return e.find("article").find("div", {"class": "article__body"})
+        article = cast(Tag, e.find("article"))
+        return article.find("div", {"class": "article__body"})
 
     def clean(self, article):
         article = super().clean(article)
@@ -75,7 +80,7 @@ class AviationWeek(Website):
         date_node = e.find("span", {"class": "article__date"})
         if date_node is None:
             return None
-        date = datetime.strptime(date_node.text, "%B %d, %Y")
+        date = datetime.strptime(date_node.text, "%B %d, %Y")  # noqa: DTZ007
         return f"{date:%Y-%m-%d}"
 
     def author(self, url):

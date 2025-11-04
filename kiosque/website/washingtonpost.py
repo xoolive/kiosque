@@ -1,4 +1,3 @@
-import requests
 from bs4 import BeautifulSoup
 
 from ..core.client import client
@@ -13,12 +12,7 @@ class WashingtonPost(Website):
     def __init__(self):
         super().__init__()
         client.get(self.base_url)
-        cookie_obj = requests.cookies.create_cookie(
-            domain="washingtonpost.com",
-            name="wp_gdpr",
-            value="1|1",
-        )
-        client.cookies.set_cookie(cookie_obj)
+        client.cookies.set("wp_gdpr", "1|1", domain="washingtonpost.com")
 
     def author(self, url):
         author = self.bs4(url).find("a", {"data-qa": "author-name"})

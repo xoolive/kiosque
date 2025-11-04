@@ -6,46 +6,45 @@ import re
 from functools import lru_cache
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Dict, List, Type, Union
+from typing import Any, ClassVar, Type
 
 import httpx
 import pandas as pd
 import pypandoc
 from bs4 import BeautifulSoup
+from bs4._typing import _StrainableAttributes
 from bs4.element import Tag
 
 from .client import client
 from .config import config_dict
 
-node_attrs_type = Dict[str, Union[str, List[str]]]
-
 
 class Website:
-    known_websites: list[Type[Website]] = list()
+    known_websites: ClassVar[list[Type[Website]]] = list()
 
-    alias: list[str] = list()
+    alias: ClassVar[list[str]] = list()
     base_url: str
     login_url: str
     connected: bool = False
 
-    url_translation: dict[str, str] = dict()
+    url_translation: ClassVar[dict[str, str]] = dict()
 
     # meta fields
-    title_meta: node_attrs_type = {
+    title_meta: ClassVar[_StrainableAttributes] = {
         "property": [
             "og:title",
             "title",
         ]
     }
 
-    author_meta: node_attrs_type = {
+    author_meta: ClassVar[_StrainableAttributes] = {
         "property": [
             "og:article:author",
             "article:author",
         ]
     }
 
-    date_meta: node_attrs_type = {
+    date_meta: ClassVar[_StrainableAttributes] = {
         "property": [
             "og:article:published_time",
             "article:published_time",
@@ -55,19 +54,27 @@ class Website:
         ]
     }
 
-    description_meta: node_attrs_type = {
+    description_meta: ClassVar[_StrainableAttributes] = {
         "property": [
             "og:description",
             "description",
         ]
     }
 
-    article_node: str | tuple[str, node_attrs_type]
+    article_node: str | tuple[str, _StrainableAttributes]
 
-    clean_nodes: list[str | tuple[str, node_attrs_type]] = []
-    clean_attributes: list[str | tuple[str, node_attrs_type]] = []
+    clean_nodes: ClassVar[list[str | tuple[str, _StrainableAttributes]]] = []
+    clean_attributes: ClassVar[
+        list[str | tuple[str, _StrainableAttributes]]
+    ] = []
 
-    header_entries = ["title", "author", "date", "url", "description"]
+    header_entries: ClassVar[list[str]] = [
+        "title",
+        "author",
+        "date",
+        "url",
+        "description",
+    ]
 
     def __init_subclass__(cls) -> None:
         cls.known_websites.append(cls)
@@ -102,8 +109,9 @@ class Website:
         c = client.get(url_or_alias)
         c.raise_for_status()
         e = BeautifulSoup(c.content, features="lxml")
-        new_url = e.find("meta", {"property": "og:url"}).attrs["content"]
-        if url_or_alias != new_url:
+        new_url_node = e.find("meta", {"property": "og:url"})
+        new_url: str = new_url_node.attrs["content"] if new_url_node else None  # type: ignore
+        if url_or_alias != new_url and new_url is not None:
             cls.url_translation[url_or_alias] = new_url
             return cls.instance(new_url)
 
@@ -155,21 +163,21 @@ class Website:
         node = e.find("meta", self.title_meta)
         if node is None:
             return None
-        return node.attrs.get("content", None)
+        return node.attrs.get("content", None)  # type: ignore
 
     def author(self, url: str) -> str | None:
         e = self.bs4(url)
         node = e.find("meta", self.author_meta)
         if node is None:
             return None
-        return node.attrs.get("content", None)
+        return node.attrs.get("content", None)  # type: ignore
 
     def date(self, url: str) -> str | None:
         e = self.bs4(url)
         node = e.find("meta", self.date_meta)
         if node is None:
             return None
-        date = node.attrs.get("content", None)
+        date = node.attrs.get("content", None)  # type: ignore
         if date is None:
             return None
         return f"{pd.Timestamp(date):%Y-%m-%d}"
@@ -182,7 +190,7 @@ class Website:
         node = e.find("meta", self.description_meta)
         if node is None:
             return None
-        text = node.attrs.get("content", None)
+        text = node.attrs.get("content", None)  # type: ignore
         if text is None:
             return None
         return text.strip().split("\n")[0]
@@ -203,7 +211,7 @@ class Website:
         elif isinstance(self.article_node, tuple):
             article = e.find(*self.article_node)
         if article is not None:
-            return article
+            return article  # type: ignore
         raise NotImplementedError
 
     def clean(self, article: Tag) -> Tag:
@@ -214,10 +222,10 @@ class Website:
         for id in self.clean_attributes:
             if isinstance(id, str):
                 for elem in article.find_all(id):
-                    elem.attrs.clear()
+                    elem.attrs.clear()  # type: ignore
             elif isinstance(id, tuple):
                 for elem in article.find_all(*id):
-                    elem.attrs.clear()
+                    elem.attrs.clear()  # type: ignore
 
         for id in self.clean_nodes:
             if isinstance(id, str):

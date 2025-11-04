@@ -12,9 +12,18 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, VerticalScroll
 from textual.logging import TextualHandler
-from textual.widgets import Button, Footer, Header, Input, Static
+from textual.screen import ModalScreen
+from textual.widgets import (
+    Button,
+    Footer,
+    Header,
+    Input,
+    MarkdownViewer,
+    Static,
+)
 
-from kiosque.api.pocket import PocketAPI, PocketRetrieveEntry
+from kiosque.api.raindrop import RaindropAPI, RaindropItem
+from kiosque.core.website import Website
 
 logging.basicConfig(handlers=[TextualHandler()])
 
@@ -31,7 +40,7 @@ class TextDisplay(Static):
 
 class SearchBar(Input):
     BINDINGS = [  # noqa: RUF012
-        Binding("escape", "clear", show=False)
+        Binding("c-c", "clear", show=False)
     ]
 
     async def action_clear(self) -> None:
@@ -42,20 +51,36 @@ class SearchBar(Input):
             break
 
 
+class MarkdownModalScreen(ModalScreen):
+    BINDINGS = [Binding("space", "close", "Close preview")]
+
+    def __init__(self, markdown_text: str, **kwargs):
+        self.markdown_text = markdown_text
+        super().__init__(**kwargs)
+
+    def compose(self) -> ComposeResult:
+        yield MarkdownViewer(self.markdown_text, show_table_of_contents=False)
+
+    def action_close(self):
+        self.dismiss()
+
+
 class Entry(Button):
     BINDINGS = [  # noqa: RUF012
         Binding("o,enter", "enter", "Open in browser", show=False),
         ("c", "copy", "Copy URL"),
         ("d", "delete", "Delete"),
         ("e", "archive", "Archive"),
+        Binding("space", "preview", "Preview"),
     ]
 
-    def __init__(self, elt: PocketRetrieveEntry):
-        self.title = elt.get("resolved_title", elt.get("given_title", ""))
-        self.url = elt.get("resolved_url", elt.get("given_url", ""))
-        self.added = pd.Timestamp(int(elt.get("time_added", "")), unit="s")
-        self.excerpt = elt.get("excerpt", "")
-        self.item_id = elt["item_id"]
+    def __init__(self, elt: RaindropItem):
+        self.title = elt.title
+        self.url = str(elt.link)
+        self.added = elt.created
+        self.excerpt = elt.excerpt
+        self.tags = elt.tags
+        self.item_id = elt.id_
         super().__init__()
 
     def __eq__(self, other: object) -> bool:
@@ -64,7 +89,7 @@ class Entry(Button):
         return False
 
     def __hash__(self) -> int:
-        return int(self.item_id)
+        return self.item_id
 
     def match(self, pattern: str) -> bool:
         if pattern == "":
@@ -80,6 +105,9 @@ class Entry(Button):
             TextDisplay(self.title, id="title", overflow="ellipsis"),
             TextDisplay(f"{self.added:%d %b %y}", id="date"),
             id="entrytitle",
+        )
+        yield TextDisplay(
+            f"#{', #'.join(self.tags)}" if len(self.tags) else "", id="tags"
         )
         yield TextDisplay(self.url, id="url", overflow="ellipsis")
         yield TextDisplay(self.excerpt, id="excerpt")
@@ -102,11 +130,21 @@ class Entry(Button):
         self.app.screen.focus_next()
         await self.app.delete(self)  # type: ignore
 
+    async def action_preview(self) -> None:
+        try:
+            instance = Website.instance(self.url)
+        except ValueError:
+            self.notify("No preview available", severity="warning")
+        else:
+            content_markdown = instance.full_text(self.url)
+            modal = MarkdownModalScreen(content_markdown)
+            self.app.push_screen(modal)
+
 
 class Kiosque(App):
-    CSS_PATH = "kiosque.css"
+    CSS_PATH = "kiosque.tcss"
     BINDINGS = [  # noqa: RUF012
-        ("q,escape", "quit", "Quit"),
+        ("q", "quit", "Quit"),
         Binding("/", "search", "Search"),
         Binding("g", "top", "Top", show=False),
         Binding("G", "bottom", "Bottom", show=False),
@@ -116,10 +154,11 @@ class Kiosque(App):
         Binding("ctrl+u", "up(5)", "Up by 5", show=False),
         ("r", "refresh", "Refresh"),
     ]
+    client: RaindropAPI
 
     def on_load(self, event: events.Load) -> None:
         """Sent before going in to application mode."""
-        self.pocket = PocketAPI()
+        self.client = RaindropAPI()
         self.entries: list[Entry] = []
 
     def action_search(self) -> None:
@@ -141,7 +180,7 @@ class Kiosque(App):
         self.timer = self.set_interval(600, self.action_refresh)
 
     async def retrieve(self, offset: int = 0) -> list[Entry]:
-        json = await self.pocket.async_retrieve(offset=offset)
+        json = await self.client.async_retrieve(offset=offset)
 
         entries = sorted(
             (
@@ -156,13 +195,16 @@ class Kiosque(App):
 
     async def delete(self, entry: Entry) -> None:
         container = self.query_one(VerticalScroll)
-        await self.pocket.async_action("delete", entry.item_id)
+        c = await self.client.async_client.delete(
+            f"https://api.raindrop.io/rest/v1/raindrop/{entry.item_id}"
+        )
+        c.raise_for_status
         entry.remove()
         self.title = f"Kiosque ({len(container.children)})"
 
     async def archive(self, entry: Entry) -> None:
         container = self.query_one(VerticalScroll)
-        await self.pocket.async_action("archive", entry.item_id)
+        await self.client.async_action("archive", entry.item_id)
         entry.remove()
         self.title = f"Kiosque ({len(container.children)})"
 
@@ -198,6 +240,22 @@ class Kiosque(App):
 
     async def action_refresh(self, from_scratch=True) -> None:
         container = self.query_one(VerticalScroll)
+        try:
+            items = await self.client.get_items_async()
+        except Exception as exc:
+            self.notify(f"Error: {exc}".replace("[", "").replace("]", ""))
+            return
+
+        for item in items:
+            entry = Entry(item)
+            if entry not in container.children:
+                await container.mount(entry)
+        else:
+            container.children[0].focus()
+
+        self.title = f"Kiosque ({len(container.children)})"
+        return
+
         if len(container.children) == 0:
             more_entries = True
             offset = 0
@@ -230,8 +288,6 @@ class Kiosque(App):
                 if entry not in container.children:
                     await container.mount(entry, before=container.children[0])
                     entry.focus()
-
-        self.title = f"Kiosque ({len(container.children)})"
 
 
 def main() -> None:
