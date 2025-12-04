@@ -29,7 +29,7 @@ class MondeDiplomatique(Website):
         c.raise_for_status()
 
         c = client.post(
-            "https://www.monde-diplomatique.fr/load_mon_compte",
+            "https://www.monde-diplomatique.fr/mon_compte?var_zajax=contenu",
             json=dict(
                 retour="https://www.monde-diplomatique.fr/",
                 erreur_connexion="",
@@ -39,13 +39,15 @@ class MondeDiplomatique(Website):
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
-        formulaire_action = e.find("input", attrs={"name": "formulaire_action"}).attrs[
-            "value"
-        ]
+        formulaire_action = e.find(
+            "input", attrs={"name": "formulaire_action"}
+        ).attrs["value"]
         formulaire_action_args = e.find(
             "input", attrs={"name": "formulaire_action_args"}
         ).attrs["value"]
-        retour = e.find("input", attrs={"name": "retour"}).attrs["value"]
+        retour = e.find(
+            "input", attrs={"name": "formulaire_action_sign"}
+        ).attrs["value"]
         _jeton = e.find("input", attrs={"name": "_jeton"}).attrs["value"]
 
         return {
@@ -73,11 +75,18 @@ class MondeDiplomatique(Website):
 
         e = BeautifulSoup(c.content, features="lxml")
 
-        attrs = {"class": "format PDF"}
-        url = e.find("div", attrs=attrs).find("a").attrs["href"]
+        attrs = {"class": "format pdf PDF"}
+        url = (
+            e.find("div", attrs=attrs)
+            .find("a", attrs={"class": "bouton_telecharger"})
+            .attrs["href"]
+        )
         return self.base_url + url
 
     def file_name(self, c) -> str:
         return unquote(
-            c.headers["Content-Disposition"].split(";")[1].split("=")[1].strip('"')
+            c.headers["Content-Disposition"]
+            .split(";")[1]
+            .split("=")[1]
+            .strip('"')
         )
