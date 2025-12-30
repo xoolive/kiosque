@@ -1,6 +1,6 @@
+from datetime import datetime
 from typing import ClassVar
 
-import pandas as pd
 from bs4 import BeautifulSoup
 
 from ..core.website import Website
@@ -27,7 +27,8 @@ class Politico(Website):
     def date(self, url):
         e = self.bs4(url)
         date = e.find("meta", {"name": "build"}).attrs["content"]
-        return f"{pd.Timestamp(date):%Y-%m-%d}"
+        dt = datetime.fromisoformat(date.replace("Z", "+00:00"))
+        return dt.strftime("%Y-%m-%d")
 
     def clean(self, article):
         article = super().clean(article)

@@ -3,13 +3,13 @@ from __future__ import annotations
 import copy
 import logging
 import re
+from datetime import datetime
 from functools import lru_cache
 from importlib import import_module
 from pathlib import Path
-from typing import Any, ClassVar, Type
+from typing import Any, ClassVar
 
 import httpx
-import pandas as pd
 import pypandoc
 from bs4 import BeautifulSoup
 from bs4._typing import _StrainableAttributes
@@ -20,7 +20,8 @@ from .config import config_dict
 
 
 class Website:
-    known_websites: ClassVar[list[Type[Website]]] = list()
+    known_websites: ClassVar[list[type["Website"]]] = list()
+    _module_cache: ClassVar[dict[str, str]] = {}  # Cache base_url -> module
 
     alias: ClassVar[list[str]] = list()
     base_url: str
@@ -85,6 +86,48 @@ class Website:
         self.credentials = config_dict.get(self.base_url, None)
 
     @classmethod
+    def _build_module_cache(cls) -> None:
+        """Build cache of base_url -> module_name and alias mappings."""
+        if cls._module_cache:
+            return  # Already cached
+
+        base_url_pat = re.compile(r'\s+base_url = "(.*)"')
+        alias_pat = re.compile(r"\s+alias.*=.*\[(.*)\]")
+        website_dir = Path(__file__).parent.parent / "website"
+
+        for x in website_dir.glob("*.py"):
+            if x.stem.startswith("_"):
+                continue
+
+            content = x.read_text()
+            module_name = f"kiosque.website.{x.stem}"
+
+            # Extract base_url
+            for line in content.split("\n"):
+                match = base_url_pat.match(line)
+                if match:
+                    cls._module_cache[match.group(1)] = module_name
+                    break
+
+            # Extract aliases
+            for line in content.split("\n"):
+                match = alias_pat.match(line)
+                if match:
+                    # Parse alias list: ["foo", "bar"] or ['foo', 'bar']
+                    aliases_str = match.group(1)
+                    # Simple parsing: extract strings between quotes
+                    alias_items = re.findall(
+                        r'["\']([^"\']+)["\']', aliases_str
+                    )
+                    for alias in alias_items:
+                        cls._module_cache[alias] = module_name
+                    break
+
+        logging.debug(
+            f"Built module cache with {len(cls._module_cache)} entries"
+        )
+
+    @classmethod
     def instance(cls, url_or_alias: str) -> Website:
         url_or_alias = url_or_alias.replace("http://", "https://")
 
@@ -96,16 +139,15 @@ class Website:
             ):
                 return website()
 
-        # -- Otherwise guess which file to import --
-        pat = re.compile(r'\s+base_url = "(.*)"')
-        for x in (Path(__file__).parent.parent / "website").glob("*.py"):
-            for line in x.read_text().split("\n"):
-                match = pat.match(line)
-                if match and url_or_alias.startswith(match.group(1)):
-                    module_name = f"kiosque.website.{x.stem}"
-                    logging.info(f"Import {module_name}")
-                    globals()[module_name] = import_module(module_name)
-                    return cls.known_websites[-1]()
+        # -- Otherwise use cache to find the module --
+        cls._build_module_cache()
+
+        # Check for exact alias match or URL prefix match
+        for key, module_name in cls._module_cache.items():
+            if url_or_alias == key or url_or_alias.startswith(key):
+                logging.info(f"Import {module_name}")
+                globals()[module_name] = import_module(module_name)
+                return cls.known_websites[-1]()
 
         # -- Attempt to access the website, and fetch for the real URL --
         c = get_with_retry(url_or_alias)
@@ -117,7 +159,12 @@ class Website:
             cls.url_translation[url_or_alias] = new_url
             return cls.instance(new_url)
 
-        raise ValueError("Unsupported URL")
+        raise ValueError(
+            f"Unsupported URL: {url_or_alias}\n"
+            "This website is not currently supported by kiosque.\n"
+            "To see supported websites, check the documentation or "
+            "look in the kiosque/website/ directory."
+        )
 
     # -- Credentials (if any) --
 
@@ -182,7 +229,13 @@ class Website:
         date = node.attrs.get("content", None)  # type: ignore
         if date is None:
             return None
-        return f"{pd.Timestamp(date):%Y-%m-%d}"
+        # Parse ISO 8601 datetime and format as YYYY-MM-DD
+        try:
+            dt = datetime.fromisoformat(date.replace("Z", "+00:00"))
+            return dt.strftime("%Y-%m-%d")
+        except (ValueError, AttributeError):
+            # If parsing fails, try to extract just the date part
+            return date[:10] if len(date) >= 10 else date
 
     def url(self, url: str) -> str:
         return url
@@ -214,7 +267,10 @@ class Website:
             article = e.find(*self.article_node)
         if article is not None:
             return article  # type: ignore
-        raise NotImplementedError
+        raise NotImplementedError(
+            f"Failed to extract article content from {url}. "
+            "The article_node selector may need to be updated."
+        )
 
     def clean(self, article: Tag) -> Tag:
         article = copy.copy(article)
@@ -258,23 +314,27 @@ class Website:
     # -- Download PDF edition --
 
     def latest_issue_url(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support downloading "
+            "PDF issues. This feature is only available for select "
+            "publications."
+        )
 
-    def file_name(self, c) -> str:
+    def file_name(self, c: httpx.Response) -> str:
         if not self.connected:
             self.login()
         url = self.latest_issue_url()
         return Path(url).name
 
-    def get_latest_issue(self):
+    def get_latest_issue(self) -> httpx.Response:
         if not self.connected:
             self.login()
         url = self.latest_issue_url()
         c = get_with_retry(url)
         return c
 
-    def save_latest_issue(self):
+    def save_latest_issue(self) -> None:
         c = self.get_latest_issue()
         full_path = (Path(".") / self.file_name(c)).with_suffix(".pdf")
         full_path.write_bytes(c.content)
-        print(f"File written: {full_path}")
+        logging.info(f"File written: {full_path}")

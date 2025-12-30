@@ -6,6 +6,18 @@ from ..core.website import Website
 
 
 class LesEchos(Website):
+    """Les Echos scraper.
+
+    Note: Website is geo-blocked and returns 403 Forbidden for requests from
+    outside France/Europe (Akamai CDN protection). To access from other regions,
+    configure a SOCKS/HTTP proxy with a French/EU IP address in kiosque.conf:
+
+    [proxy]
+    url = socks5://localhost:1080
+
+    See TROUBLESHOOTING.md for proxy setup instructions.
+    """
+
     base_url = "https://www.lesechos.fr/"
     login_url = "https://api.lesechos.fr/api/v1/auth/login"
 

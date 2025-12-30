@@ -10,11 +10,22 @@ from ..core.website import Website
 
 
 class CourrierInternational(Website):
+    """Courrier International scraper.
+
+    Note: Login is geo-blocked and returns 406 Not Acceptable for requests
+    from outside France/Europe. To access from other regions, configure a
+    SOCKS/HTTP proxy with a French/EU IP address in kiosque.conf:
+
+    [proxy]
+    url = socks5://localhost:1080
+
+    See TROUBLESHOOTING.md for proxy setup instructions.
+    """
+
     base_url = "https://www.courrierinternational.com/"
-    login_url = (
-        "https://auth.courrierinternational.com/auth/realms/ci/"
-        "protocol/openid-connect/auth"
-    )
+    login_url = "https://secure.courrierinternational.com/sfuser/connexion"
+
+    alias: ClassVar = ["courrier"]
 
     article_node = ("div", {"class": "article-text"})
 
@@ -38,26 +49,10 @@ class CourrierInternational(Website):
         credentials = self.credentials
         assert credentials is not None
 
-        c = client.get(self.login_url)
-        c.raise_for_status()
         return {
             "email": credentials["username"],
             "password": credentials["password"],
-            "submit-button": "Chargement...",
-        }
-
-        e = BeautifulSoup(c.content, features="lxml")
-        attrs = dict(name="form_build_id")
-        form_id = e.find("input", attrs=attrs).attrs["value"]
-
-        return {
-            "remember_me": "1",
-            "form_build_id": form_id,
-            "form_id": "user_login_block",
-            "op": "Se+connecter",
-            "ci_promo_code_code": "",
-            "name": credentials["username"],
-            "pass": credentials["password"],
+            "submit-button": "Je me connecte",
         }
 
     @lru_cache()

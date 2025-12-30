@@ -16,11 +16,10 @@ class Mediapart(Website):
         credentials = self.credentials
         assert credentials is not None
 
-        return dict(
-            name=credentials["username"],
-            password=credentials["password"],
-            op="Se+connecter",
-        )
+        return {
+            "email": credentials["username"],
+            "password": credentials["password"],
+        }
 
     def article(self, url):
         e = self.bs4(url)

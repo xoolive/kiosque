@@ -1,7 +1,33 @@
+import logging
+
 import httpx
 import stamina
 
-client = httpx.Client(follow_redirects=True, timeout=30.0)
+from .config import validate_proxy_config
+
+# Initialize client with optional proxy support
+proxy_config = validate_proxy_config()
+proxy_url = proxy_config.url if proxy_config else None
+
+if proxy_url:
+    # For SOCKS proxies, we need to use httpx_socks transport
+    if proxy_url.startswith("socks"):
+        from httpx_socks import SyncProxyTransport
+
+        transport = SyncProxyTransport.from_url(proxy_url)
+        client = httpx.Client(
+            follow_redirects=True, timeout=30.0, transport=transport
+        )
+        logging.info(f"Using SOCKS proxy: {proxy_url}")
+    else:
+        # For HTTP/HTTPS proxies, httpx handles them natively
+        client = httpx.Client(
+            follow_redirects=True, timeout=30.0, proxy=proxy_url
+        )
+        logging.info(f"Using HTTP proxy: {proxy_url}")
+else:
+    client = httpx.Client(follow_redirects=True, timeout=30.0)
+
 client.headers.update(
     {
         "User-Agent": (

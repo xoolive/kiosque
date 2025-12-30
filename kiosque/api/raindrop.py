@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 import httpx
 from pydantic import BaseModel, Field, HttpUrl, field_validator
@@ -18,11 +18,11 @@ class RaindropCollection(BaseModel):
     """Model representing a collection that a Raindrop item belongs to."""
 
     _id: int
-    name: Optional[str] = None
-    color: Optional[str] = None
-    ref: Optional[str] = Field(None, alias="$ref")
-    id: Optional[int] = Field(None, alias="$id")
-    oid: Optional[int] = None
+    name: str | None = None
+    color: str | None = None
+    ref: str | None = Field(None, alias="$ref")
+    id: int | None = Field(None, alias="$id")
+    oid: int | None = None
 
 
 class RaindropItem(BaseModel):
@@ -30,24 +30,24 @@ class RaindropItem(BaseModel):
 
     id_: int = Field(alias="_id")
     title: str
-    excerpt: Optional[str] = None
-    note: Optional[str] = None
+    excerpt: str | None = None
+    note: str | None = None
     link: HttpUrl
     created: datetime
     lastUpdate: datetime
-    tags: List[str] = Field(default_factory=list)
-    cover: Optional[HttpUrl] = None
+    tags: list[str] = Field(default_factory=list)
+    cover: HttpUrl | None = None
     collection: RaindropCollection
     type: Literal["link", "article", "image", "video", "document"]
-    user: Dict[str, Any]  # Simplified; contains user information
+    user: dict[str, Any]  # Simplified; contains user information
     important: bool = False
-    media: List[Dict] = Field(default_factory=list)
+    media: list[dict] = Field(default_factory=list)
     broken: bool = False
-    creatorRef: Optional[Dict] = None
+    creatorRef: dict | None = None
 
     @field_validator("cover", mode="before", json_schema_input_type=str)
     @classmethod
-    def cover_validate(cls, value: str) -> Optional[str]:
+    def cover_validate(cls, value: str) -> str | None:
         if value == "":
             return None
         return value
@@ -61,7 +61,7 @@ class RaindropAPI:
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         raindrop_config = config_dict.get("raindrop.io", None)
         assert raindrop_config is not None, (
             "Raindrop.io configuration not found."
@@ -75,28 +75,28 @@ class RaindropAPI:
             headers={"Authorization": f"Bearer {self.token}"}
         )
 
-    async def get_collections_async(self) -> List[Dict[str, Any]]:
+    async def get_collections_async(self) -> list[dict[str, Any]]:
         response = await self.async_client.get(
             "https://api.raindrop.io/rest/v1/collections"
         )
         response.raise_for_status()
         return response.json()["items"]
 
-    async def get_user_async(self) -> Dict[str, Any]:
+    async def get_user_async(self) -> dict[str, Any]:
         response = await self.async_client.get(
             "https://api.raindrop.io/rest/v1/user"
         )
         response.raise_for_status()
         return response.json()
 
-    async def get_tags_async(self) -> List[RaindropTag]:
+    async def get_tags_async(self) -> list[RaindropTag]:
         response = await self.async_client.get(
             "https://api.raindrop.io/rest/v1/tags/"
         )
         response.raise_for_status()
         return [RaindropTag(**tag) for tag in response.json()["items"]]
 
-    async def get_items_page_async(self, page: int = 0) -> List[RaindropItem]:
+    async def get_items_page_async(self, page: int = 0) -> list[RaindropItem]:
         response = await self.async_client.get(
             f"https://api.raindrop.io/rest/v1/raindrops/0?page={page}"
         )
@@ -105,7 +105,7 @@ class RaindropAPI:
 
     async def get_items_async(
         self, page: int = 0, cumul: None | list[RaindropItem] = None
-    ) -> List[RaindropItem]:
+    ) -> list[RaindropItem]:
         response = await self.async_client.get(
             f"https://api.raindrop.io/rest/v1/raindrops/0?page={page}"
         )
@@ -118,31 +118,31 @@ class RaindropAPI:
             return cumul
         return await self.get_items_async(page=page + 1, cumul=cumul)
 
-    def get_collections(self) -> List[Dict[str, Any]]:
+    def get_collections(self) -> list[dict[str, Any]]:
         response = self.client.get(
             "https://api.raindrop.io/rest/v1/collections"
         )
         response.raise_for_status()
         return response.json()["items"]
 
-    def get_user(self) -> Dict[str, Any]:
+    def get_user(self) -> dict[str, Any]:
         response = self.client.get("https://api.raindrop.io/rest/v1/user")
         response.raise_for_status()
         return response.json()
 
-    def get_tags(self) -> List[RaindropTag]:
+    def get_tags(self) -> list[RaindropTag]:
         response = self.client.get("https://api.raindrop.io/rest/v1/tags/")
         response.raise_for_status()
         return [RaindropTag(**tag) for tag in response.json()["items"]]
 
-    def get_items_page(self, page: int = 0) -> List[RaindropItem]:
+    def get_items_page(self, page: int = 0) -> list[RaindropItem]:
         response = self.client.get(
             f"https://api.raindrop.io/rest/v1/raindrops/0?page={page}"
         )
         response.raise_for_status()
         return [RaindropItem(**item) for item in response.json()["items"]]
 
-    async def async_retrieve(self, offset: int = 0) -> Dict[str, Any]:
+    async def async_retrieve(self, offset: int = 0) -> dict[str, Any]:
         """Legacy method for compatibility - returns raw JSON."""
         response = await self.async_client.get(
             f"https://api.raindrop.io/rest/v1/raindrops/0?page={offset // 30}"
@@ -154,7 +154,7 @@ class RaindropAPI:
         items_dict = {str(item["_id"]): item for item in json_data["items"]}
         return {"list": items_dict, "count": json_data["count"]}
 
-    async def async_action(self, action: str, item_id: int) -> Dict[str, Any]:
+    async def async_action(self, action: str, item_id: int) -> dict[str, Any]:
         """Perform an action on a raindrop item."""
         # Actions: "remove", "archive", etc.
         if action == "archive":
