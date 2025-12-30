@@ -11,11 +11,85 @@ from .core.website import Website
 from .tui.tui import main as tui_main
 
 
+def list_websites() -> None:
+    """List all supported websites with their authentication status."""
+    website_dir = Path(__file__).parent / "website"
+    websites_info = []
+
+    for module_file in sorted(website_dir.glob("*.py")):
+        if module_file.stem.startswith("_"):
+            continue
+
+        content = module_file.read_text()
+
+        # Extract base_url
+        base_url = None
+        for line in content.split("\n"):
+            if "base_url = " in line and "http" in line:
+                # Extract URL from string
+                base_url = (
+                    line.split('"')[1] if '"' in line else line.split("'")[1]
+                )
+                break
+
+        # Check if login_url is defined (indicates auth required)
+        needs_auth = "login_url = " in content
+
+        # Extract class name for display
+        class_name = None
+        for line in content.split("\n"):
+            if line.startswith("class ") and "(Website)" in line:
+                class_name = line.split("class ")[1].split("(")[0]
+                break
+
+        if base_url and class_name:
+            websites_info.append(
+                {
+                    "name": class_name,
+                    "url": base_url,
+                    "auth": "Yes" if needs_auth else "No",
+                }
+            )
+
+    # Print header
+    click.echo("\nSupported Websites:")
+    click.echo("=" * 80)
+    click.echo(f"{'Website':<30} {'Authentication':<15} {'URL':<35}")
+    click.echo("-" * 80)
+
+    # Print websites
+    for info in websites_info:
+        click.echo(f"{info['name']:<30} {info['auth']:<15} {info['url']:<35}")
+
+    click.echo("=" * 80)
+    click.echo(f"\nTotal: {len(websites_info)} websites supported\n")
+
+
 @click.command(help="Read newspaper articles in textual format")
-@click.argument("url_or_alias")
+@click.argument("url_or_alias", required=False)
 @click.argument("output", type=click.File("w"), required=False, default=None)
 @click.option("-v", "--verbose", count=True, help="Verbosity level")
-def main(url_or_alias: str, output: Path | None, verbose: int) -> None:
+@click.option(
+    "--list-websites",
+    "show_list",
+    is_flag=True,
+    help="List all supported websites",
+)
+def main(
+    url_or_alias: str | None,
+    output: Path | None,
+    verbose: int,
+    show_list: bool,
+) -> None:
+    # Handle --list-websites flag
+    if show_list:
+        list_websites()
+        return
+
+    # url_or_alias is required if not using --list-websites
+    if url_or_alias is None:
+        raise click.UsageError("Missing argument 'URL_OR_ALIAS'")
+
     # Configure logging
     logging.basicConfig(
         level=logging.WARNING,

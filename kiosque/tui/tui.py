@@ -23,6 +23,7 @@ from textual.widgets import (
 )
 
 from kiosque.api.raindrop import RaindropAPI, RaindropItem
+from kiosque.core.config import validate_tui_config
 from kiosque.core.website import Website
 
 logging.basicConfig(handlers=[TextualHandler()])
@@ -56,10 +57,50 @@ class MarkdownModalScreen(ModalScreen):
 
     def __init__(self, markdown_text: str, **kwargs):
         self.markdown_text = markdown_text
+        # Parse YAML frontmatter if present
+        self.metadata = {}
+        self.content = markdown_text
+
+        if markdown_text.startswith("---\n"):
+            parts = markdown_text.split("---\n", 2)
+            if len(parts) >= 3:
+                # Extract metadata from frontmatter
+                frontmatter = parts[1]
+                for line in frontmatter.strip().split("\n"):
+                    if ": " in line:
+                        key, value = line.split(": ", 1)
+                        self.metadata[key.strip()] = value.strip()
+                # Content is everything after the second ---
+                self.content = parts[2].strip()
+
         super().__init__(**kwargs)
 
     def compose(self) -> ComposeResult:
-        yield MarkdownViewer(self.markdown_text, show_table_of_contents=False)
+        # If we have metadata, display it nicely above the content
+        if self.metadata:
+            # Build a nice header with metadata
+            header_lines = []
+            if "title" in self.metadata:
+                header_lines.append(f"# {self.metadata['title']}\n")
+            if "author" in self.metadata:
+                header_lines.append(f"**By {self.metadata['author']}**")
+            if "date" in self.metadata:
+                header_lines.append(f" · {self.metadata['date']}")
+            if "author" in self.metadata or "date" in self.metadata:
+                header_lines.append("\n\n")
+            if "description" in self.metadata:
+                header_lines.append(f"*{self.metadata['description']}*\n\n")
+            if "url" in self.metadata:
+                header_lines.append("---\n\n")
+
+            formatted_content = "".join(header_lines) + self.content
+            yield MarkdownViewer(
+                formatted_content, show_table_of_contents=False
+            )
+        else:
+            yield MarkdownViewer(
+                self.markdown_text, show_table_of_contents=False
+            )
 
     def action_close(self):
         self.dismiss()
@@ -135,10 +176,21 @@ class Entry(Button):
             instance = Website.instance(self.url)
         except ValueError:
             self.notify("No preview available", severity="warning")
-        else:
-            content_markdown = instance.full_text(self.url)
+            return
+
+        self.notify("Loading preview...")
+
+        try:
+            # Run sync full_text in thread pool to avoid blocking
+            import asyncio
+
+            content_markdown = await asyncio.to_thread(
+                instance.full_text, self.url
+            )
             modal = MarkdownModalScreen(content_markdown)
             self.app.push_screen(modal)
+        except Exception as e:
+            self.notify(f"Error loading preview: {e}", severity="error")
 
 
 class Kiosque(App):
@@ -177,7 +229,11 @@ class Kiosque(App):
 
     async def on_mount(self) -> None:
         await self.action_refresh()
-        self.timer = self.set_interval(600, self.action_refresh)
+        # Load TUI configuration and use configured refresh interval
+        tui_config = validate_tui_config()
+        self.timer = self.set_interval(
+            tui_config.refresh_interval, self.action_refresh
+        )
 
     async def retrieve(self, offset: int = 0) -> list[Entry]:
         json = await self.client.async_retrieve(offset=offset)
@@ -246,11 +302,23 @@ class Kiosque(App):
             self.notify(f"Error: {exc}".replace("[", "").replace("]", ""))
             return
 
+        new_entries = []
         for item in items:
             entry = Entry(item)
             if entry not in container.children:
+                new_entries.append(entry)
+
+        # Mount new entries at the beginning (most recent first)
+        if new_entries and len(container.children) > 0:
+            # Insert before the first existing entry
+            for entry in reversed(new_entries):
+                await container.mount(entry, before=container.children[0])
+        elif new_entries:
+            # No existing entries, just mount them
+            for entry in new_entries:
                 await container.mount(entry)
-        else:
+
+        if len(container.children) > 0:
             container.children[0].focus()
 
         self.title = f"Kiosque ({len(container.children)})"

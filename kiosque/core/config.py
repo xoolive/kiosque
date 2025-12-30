@@ -56,6 +56,23 @@ class ProxyConfig(BaseModel):
         return v
 
 
+class TUIConfig(BaseModel):
+    """Model for TUI configuration."""
+
+    refresh_interval: int = Field(
+        default=600,
+        ge=60,
+        description="Auto-refresh interval in seconds (minimum 60)",
+    )
+
+    @field_validator("refresh_interval")
+    @classmethod
+    def validate_refresh_interval(cls, v: int) -> int:
+        if v < 60:
+            raise ValueError("Refresh interval must be at least 60 seconds")
+        return v
+
+
 config_dir = Path(user_config_dir("kiosque"))
 if xdg_config := os.getenv("XDG_CONFIG_HOME"):
     config_dir = Path(xdg_config) / "kiosque"
@@ -76,6 +93,10 @@ if not config_dir.exists():
 # Get your token from https://app.raindrop.io/settings/integrations
 # [raindrop.io]
 # token =
+#
+# TUI configuration (optional)
+# [tui]
+# refresh_interval = 600  # Auto-refresh interval (default: 10 min)
 #
 # Proxy configuration (optional, for geo-blocked websites)
 # Supports HTTP, HTTPS, SOCKS4, and SOCKS5 proxies
@@ -160,4 +181,25 @@ def validate_proxy_config() -> ProxyConfig | None:
         return ProxyConfig(**proxy_data)
     except ValidationError as e:
         logging.error(f"Invalid proxy configuration: {e}")
+        raise
+
+
+def validate_tui_config() -> TUIConfig:
+    """Validate TUI configuration if present.
+
+    Returns:
+        TUIConfig with default values if not present, or configured
+        values if present.
+
+    Raises:
+        ValidationError: If configuration is present but invalid.
+    """
+    tui_data = config_dict.get("tui")
+    if tui_data is None:
+        return TUIConfig()  # Use defaults
+
+    try:
+        return TUIConfig(**tui_data)  # ty: ignore[invalid-argument-type]
+    except ValidationError as e:
+        logging.error(f"Invalid TUI configuration: {e}")
         raise

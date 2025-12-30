@@ -15,7 +15,12 @@ from bs4 import BeautifulSoup
 from bs4._typing import _StrainableAttributes
 from bs4.element import Tag
 
-from .client import client, get_with_retry, post_with_retry
+from .client import (
+    async_get_with_retry,
+    client,
+    get_with_retry,
+    post_with_retry,
+)
 from .config import config_dict
 
 
@@ -310,6 +315,134 @@ class Website:
         filename = filename.with_suffix(".md")
         logging.warning(f"Export to {filename.absolute()}")
         filename.write_text(self.full_text(url))
+
+    # -- Async versions for non-blocking operations --
+    # TODO: These async methods are available for future full async refactor
+    # Currently, TUI uses asyncio.to_thread() to run sync full_text()
+    # This approach works with all websites, including those that
+    # override article(). To use these async methods:
+    #   1. Refactor website-specific article() overrides to be async
+    #   2. Make login() async (11 websites have custom login logic)
+    #   3. Update TUI to call async_full_text() directly instead of to_thread()
+
+    async def async_bs4(self, url: str) -> BeautifulSoup:
+        """Async version of bs4() for non-blocking HTTP requests.
+
+        TODO: Make login() async to fully support async flow.
+        """
+        if not self.connected and self.credentials is not None:
+            self.login()  # Login is still sync for now
+        # Just in case this URL has been redirected...
+        url = self.url_translation.get(url, url)
+        c = await async_get_with_retry(url)
+        c.raise_for_status()
+        return BeautifulSoup(c.content, features="lxml")
+
+    async def async_title(self, url: str) -> str | None:
+        """Async version of title()."""
+        e = await self.async_bs4(url)
+        node = e.find("meta", self.title_meta)
+        if node is None:
+            return None
+        return node.attrs.get("content", None)  # type: ignore
+
+    async def async_author(self, url: str) -> str | None:
+        """Async version of author()."""
+        e = await self.async_bs4(url)
+        node = e.find("meta", self.author_meta)
+        if node is None:
+            return None
+        return node.attrs.get("content", None)  # type: ignore
+
+    async def async_date(self, url: str) -> str | None:
+        """Async version of date()."""
+        e = await self.async_bs4(url)
+        node = e.find("meta", self.date_meta)
+        if node is None:
+            return None
+        date = node.attrs.get("content", None)  # type: ignore
+        if date is None:
+            return None
+        # Parse ISO 8601 datetime and format as YYYY-MM-DD
+        try:
+            dt = datetime.fromisoformat(date.replace("Z", "+00:00"))
+            return dt.strftime("%Y-%m-%d")
+        except (ValueError, AttributeError):
+            # If parsing fails, try to extract just the date part
+            return date[:10] if len(date) >= 10 else date
+
+    async def async_url(self, url: str) -> str:
+        """Async version of url()."""
+        return url
+
+    async def async_description(self, url: str) -> str | None:
+        """Async version of description()."""
+        e = await self.async_bs4(url)
+        node = e.find("meta", self.description_meta)
+        if node is None:
+            return None
+        text = node.attrs.get("content", None)  # type: ignore
+        if text is None:
+            return None
+        return text.strip().split("\n")[0]
+
+    async def async_header(self, url: str) -> str:
+        """Async version of header()."""
+        entries_list = []
+        for entry in self.header_entries:
+            method = getattr(self, f"async_{entry}")
+            value = await method(url)
+            entries_list.append(f"{entry}: {value}")
+        entries = "\n".join(entries_list)
+        return f"---\n{entries}\n---\n"
+
+    async def async_article(self, url: str) -> Tag:
+        """Async version of article().
+
+        Note: If a subclass overrides article() with custom logic,
+        we call the overridden sync method since most use sync bs4().
+        Only use async bs4 for the default implementation.
+
+        TODO: To make this fully async, refactor the 11 websites that
+        override article() to use async methods:
+        - aviationweek.py, lemonde.py, lesechos.py, letemps.py
+        - mediapart.py, nationalgeographic.py, nikkei.py, politico.py
+        - quantamagazine.py, reporterre.py, theatlantic.py
+        """
+        # Check if this class has overridden the article method
+        if type(self).article is not Website.article:
+            # Subclass has custom article() logic, use the sync version
+            # (it will use sync bs4() internally)
+            return self.article(url)
+
+        # Use async implementation for default article_node-based extraction
+        e = await self.async_bs4(url)
+        if isinstance(self.article_node, str):
+            article = e.find(self.article_node)
+        elif isinstance(self.article_node, tuple):
+            article = e.find(*self.article_node)
+        if article is not None:
+            return article  # type: ignore
+        raise NotImplementedError(
+            f"Failed to extract article content from {url}. "
+            "The article_node selector may need to be updated."
+        )
+
+    async def async_content(self, url: str) -> str:
+        """Async version of content()."""
+        article = await self.async_article(url)
+        article = self.clean(article)
+        return pypandoc.convert_text(str(article), "md", format="html")
+
+    async def async_full_text(self, url: str) -> str:
+        """Async version of full_text() for non-blocking article fetching.
+
+        TODO: Currently unused. TUI uses asyncio.to_thread(full_text) instead.
+        This will be useful once all website-specific methods are made async.
+        """
+        header = await self.async_header(url)
+        content = await self.async_content(url)
+        return f"{header}\n{content}"
 
     # -- Download PDF edition --
 
