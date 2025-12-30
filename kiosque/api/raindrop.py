@@ -149,7 +149,8 @@ class RaindropAPI:
         )
         response.raise_for_status()
         json_data = response.json()
-        # Convert to format expected by TUI (using "list" key with dict of items)
+        # Convert to format expected by TUI
+        # (using "list" key with dict of items)
         items_dict = {str(item["_id"]): item for item in json_data["items"]}
         return {"list": items_dict, "count": json_data["count"]}
 

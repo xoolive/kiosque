@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from bs4 import BeautifulSoup
 
 from ..core.client import get_with_retry
@@ -7,9 +9,9 @@ from ..core.website import Website
 class LeMonde(Website):
     base_url = "https://www.lemonde.fr/"
     login_url = "https://secure.lemonde.fr/sfuser/connexion"
-    alias = ["lemonde"]
+    alias: ClassVar = ["lemonde"]
 
-    clean_nodes = [
+    clean_nodes: ClassVar = [
         "figure",
         (
             "section",
@@ -17,7 +19,7 @@ class LeMonde(Website):
         ),
         ("div", {"class": "dfp__inread"}),
     ]
-    clean_attributes = ["h2"]
+    clean_attributes: ClassVar = ["h2"]
 
     @property
     def login_dict(self):
@@ -28,8 +30,7 @@ class LeMonde(Website):
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
-        attrs = dict(name="connection[_token]")
-        token = e.find("input", attrs=attrs).attrs["value"]
+        token = e.find("input", {"name": "connection[_token]"}).attrs["value"]  # type: ignore
 
         return {
             "connection[mail]": credentials["username"],

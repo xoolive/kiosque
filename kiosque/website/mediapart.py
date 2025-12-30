@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,9 +7,9 @@ class Mediapart(Website):
     base_url = "https://www.mediapart.fr/"
     login_url = "https://www.mediapart.fr/login_check"
 
-    author_meta = {"name": ["author"]}
+    author_meta: ClassVar = {"name": ["author"]}
 
-    clean_nodes = ["div"]
+    clean_nodes: ClassVar = ["div"]
 
     @property
     def login_dict(self):

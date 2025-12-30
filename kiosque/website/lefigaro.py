@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,7 +7,7 @@ class LeFigaro(Website):
     base_url = "https://www.lefigaro.fr/"
 
     article_node = "div", {"class": "fig-body"}
-    clean_nodes = ["div", "svg", ("p", {"class": "fig-body-link"})]
+    clean_nodes: ClassVar = ["div", "svg", ("p", {"class": "fig-body-link"})]
 
     def author(self, url):
         e = self.bs4(url)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import webbrowser
+from typing import ClassVar
 
 import pyperclip
 from rich.text import Text
@@ -51,7 +52,7 @@ class SearchBar(Input):
 
 
 class MarkdownModalScreen(ModalScreen):
-    BINDINGS = [Binding("space", "close", "Close preview")]
+    BINDINGS: ClassVar = [Binding("space", "close", "Close preview")]
 
     def __init__(self, markdown_text: str, **kwargs):
         self.markdown_text = markdown_text

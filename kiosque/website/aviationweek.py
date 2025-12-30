@@ -52,13 +52,14 @@ class AviationWeek(Website):
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
+        form_data = {
+            str(elt.attrs["name"]): str(elt.attrs["value"])
+            for elt in e.find_all("input")
+            if elt.get("name")
+        }
         c = client.post(
             "https://aviationweek.auth0.com/login/callback",
-            data=dict(
-                (elt.attrs["name"], elt.attrs["value"])  # type: ignore
-                for elt in e.find_all("input")
-                if cast(Tag, elt).get("name")
-            ),
+            data=form_data,
         )
         c.raise_for_status()
         self.__class__.connected = True

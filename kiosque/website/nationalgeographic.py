@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..core.website import Website
 
@@ -26,5 +26,5 @@ class NationalGeographic(Website):
             return None
         date = datetime.strptime(
             " ".join(date_node.text.split()[1:]), "%B %d, %Y"
-        )
+        ).replace(tzinfo=timezone.utc)
         return f"{date:%Y-%m-%d}"

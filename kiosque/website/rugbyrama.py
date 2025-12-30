@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,8 +7,8 @@ class Rugbyrama(Website):
     base_url = "https://www.rugbyrama.fr/"
 
     article_node = ("div", {"class": "article-full__body-content"})
-    clean_nodes = ["div"]
-    clean_attributes = ["h2"]
+    clean_nodes: ClassVar = ["div"]
+    clean_attributes: ClassVar = ["h2"]
 
     def description(self, url):
         e = self.bs4(url)

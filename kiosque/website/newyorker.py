@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,8 +7,8 @@ class NewYorker(Website):
     base_url = "https://www.newyorker.com/"
 
     article_node = "div", {"data-attribute-verso-pattern": "article-body"}
-    clean_nodes = ["figure"]
-    clean_attributes = ["blockquote", "h1"]
+    clean_nodes: ClassVar = ["figure"]
+    clean_attributes: ClassVar = ["blockquote", "h1"]
 
     def author(self, url):
         e = self.bs4(url)

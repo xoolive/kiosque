@@ -27,6 +27,8 @@ class Website:
     login_url: str
     connected: bool = False
 
+    credentials: None | dict[str, str]
+
     url_translation: ClassVar[dict[str, str]] = dict()
 
     # meta fields

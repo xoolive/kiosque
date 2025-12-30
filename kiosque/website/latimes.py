@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,8 +7,8 @@ class LATimes(Website):
     base_url = "https://www.latimes.com/"
 
     article_node = "div", {"class": "rich-text-body"}
-    clean_attributes = ["span"]
-    clean_nodes = ["div"]
+    clean_attributes: ClassVar = ["span"]
+    clean_nodes: ClassVar = ["div"]
 
     def author(self, url):
         e = self.bs4(url)

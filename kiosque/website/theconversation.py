@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,7 +7,7 @@ class TheConversation(Website):
     base_url = "https://theconversation.com/"
 
     article_node = "div", {"itemprop": "articleBody"}
-    clean_nodes = ["figure"]
+    clean_nodes: ClassVar = ["figure"]
 
     def author(self, url):
         author_node = self.bs4(url).find("meta", {"name": "author"})

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,7 +7,7 @@ class QuantaMagazine(Website):
     base_url = "https://www.quantamagazine.org/"
 
     article_node = "div", {"class": "post__content__section"}
-    clean_nodes = ["div"]
+    clean_nodes: ClassVar = ["div"]
 
     def article(self, url):
         article = super().article(url)

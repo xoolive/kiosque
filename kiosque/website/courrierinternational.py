@@ -11,15 +11,20 @@ from ..core.website import Website
 
 class CourrierInternational(Website):
     base_url = "https://www.courrierinternational.com/"
-    login_url = "https://secure.courrierinternational.com/sfuser/connexion"
-    alias: ClassVar[list[str]] = ["courrier"]
+    login_url = (
+        "https://auth.courrierinternational.com/auth/realms/ci/"
+        "protocol/openid-connect/auth"
+    )
 
     article_node = ("div", {"class": "article-text"})
 
-    clean_attributes = ["h3"]
-    clean_nodes = ["div", ("span", {"class": "empty-author-name-short"})]
+    clean_attributes: ClassVar = ["h3"]
+    clean_nodes: ClassVar = [
+        "div",
+        ("span", {"class": "empty-author-name-short"}),
+    ]
 
-    header_entries = [
+    header_entries: ClassVar = [
         "title",
         "author",
         "date",

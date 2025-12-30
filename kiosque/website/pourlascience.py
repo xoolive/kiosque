@@ -27,10 +27,8 @@ class PourLaScience(Website):
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
-        attrs = dict(name="client_id")
-        client_id = e.find("input", attrs=attrs).attrs["value"]
-        attrs = dict(name="referer")
-        referer = e.find("input", attrs=attrs).attrs["value"]
+        client_id = e.find("input", {"name": "client_id"}).attrs["value"]  # type: ignore
+        referer = e.find("input", {"name": "referer"}).attrs["value"]  # type: ignore
 
         return {
             "response_type": "code",

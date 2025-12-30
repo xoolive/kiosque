@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from bs4 import BeautifulSoup
 
 from ..core.website import Website
@@ -7,10 +9,10 @@ class UsineNouvelle(Website):
     base_url = "https://www.usinenouvelle.com/"
     login_url = "https://www.usinenouvelle.com/user/doLogin"
 
-    date_meta = {"name": ["date.modified"]}
+    date_meta: ClassVar = {"name": ["date.modified"]}
 
     article_node = ("div", {"class": "epAtcBody"})
-    clean_nodes = ["section"]
+    clean_nodes: ClassVar = ["section"]
 
     @property
     def login_dict(self):

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from bs4 import BeautifulSoup
 
 from ..core.website import Website
@@ -6,10 +8,10 @@ from ..core.website import Website
 class Asahi(Website):
     base_url = "https://www.asahi.com/"
 
-    header_entries = ["title", "date", "url"]
+    header_entries: ClassVar = ["title", "date", "url"]
 
     article_node = ("div", {"class": "_3YqJ1"})
-    clean_attributes = ["a"]
+    clean_attributes: ClassVar = ["a"]
 
     def clean(self, article):
         article = super().clean(article)

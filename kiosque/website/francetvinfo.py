@@ -1,13 +1,14 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
 class FranceTVInfo(Website):
     base_url = "https://www.francetvinfo.fr/"
-
     article_node = ("div", {"id": "col-middle"})
 
-    clean_nodes = ["div", "figure", "aside"]
-    clean_attributes = ["h2"]
+    clean_nodes: ClassVar = ["div", "figure", "aside"]
+    clean_attributes: ClassVar = ["h2"]
 
     def description(self, url):
         e = self.bs4(url)

@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import ClassVar
 from urllib.parse import unquote
 
 from bs4 import BeautifulSoup
@@ -11,14 +12,14 @@ class MondeDiplomatique(Website):
     base_url = "https://www.monde-diplomatique.fr/"
     # login_url = "https://lecteurs.mondediplo.net/?page=connexion_sso"
     login_url = "https://www.monde-diplomatique.fr/load_mon_compte"
-    alias = ["diplomatique", "diplo"]
+    alias: ClassVar = ["diplomatique", "diplo"]
 
-    description_meta = {"name": ["description"]}
+    description_meta: ClassVar = {"name": ["description"]}
 
     article_node = ("div", {"class": "texte"})
 
-    clean_nodes = ["figure", "div", "small", "a"]
-    clean_attributes = ["h3", "span"]
+    clean_nodes: ClassVar = ["figure", "div", "small", "a"]
+    clean_attributes: ClassVar = ["h3", "span"]
 
     @property
     def login_dict(self):

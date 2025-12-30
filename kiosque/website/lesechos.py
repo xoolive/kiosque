@@ -1,4 +1,5 @@
 import json
+from typing import ClassVar
 
 from ..core.client import client
 from ..core.website import Website
@@ -51,8 +52,8 @@ class LesEchos(Website):
         article = super().article(url)
         return article.find("div", {"class": "post-paywall"})
 
-    clean_nodes = ["div"]
-    clean_attributes = ["h3"]
+    clean_nodes: ClassVar = ["div"]
+    clean_attributes: ClassVar = ["h3"]
 
     def clean(self, article):
         article = super().clean(article)

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -8,7 +10,11 @@ class Politico(Website):
     base_url = "https://www.politico.com/"
 
     article_node = "div", {"class": "page-content"}
-    clean_nodes = [("div", {"class": "story-meta"}), "aside", "header"]
+    clean_nodes: ClassVar = [
+        ("div", {"class": "story-meta"}),
+        "aside",
+        "header",
+    ]
 
     def author(self, url):
         e = self.bs4(url)
@@ -38,7 +44,7 @@ class Politico_eu(Politico):
     base_url = "https://www.politico.eu/"
 
     article_node = "div", {"class": "article__content"}
-    clean_nodes = ["div", "figure"]
+    clean_nodes: ClassVar = ["div", "figure"]
 
     def author(self, url):
         e = self.bs4(url)
@@ -46,4 +52,4 @@ class Politico_eu(Politico):
 
     def article(self, url):
         article = super().article(url)
-        return article.find(*self.article_node)
+        return article.find(self.article_node[0], self.article_node[1])  # type: ignore

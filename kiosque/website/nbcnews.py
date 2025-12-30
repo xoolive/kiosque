@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,7 +7,7 @@ class NBCNews(Website):
     base_url = "https://www.nbcnews.com/"
 
     article_node = "div", {"class": "article-body__content"}
-    clean_nodes = ["div", "figure", "section"]
+    clean_nodes: ClassVar = ["div", "figure", "section"]
 
     def date(self, url):
         return (

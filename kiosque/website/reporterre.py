@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
@@ -5,7 +7,7 @@ class Reporterre(Website):
     base_url = "https://reporterre.net/"
 
     article_node = "article"
-    clean_nodes = [
+    clean_nodes: ClassVar = [
         "small",
         "dl",
         "div",

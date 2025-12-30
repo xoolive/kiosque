@@ -1,12 +1,13 @@
+from typing import ClassVar
+
 from ..core.website import Website
 
 
 class FranceCulture(Website):
     base_url = "https://www.franceculture.fr/"
-
     article_node = ("div", {"class": "content-body"})
 
-    clean_nodes = ["div", "figure", "aside"]
+    clean_nodes: ClassVar = ["div", "figure", "aside"]
 
     def author(self, url):
         author = super().author(url)
