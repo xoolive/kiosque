@@ -33,12 +33,38 @@ uv sync --dev
 # Run the application
 uv run kiosque
 
-# Run tests
+# Run tests (excluding login tests that require credentials)
+uv run pytest -m "not login"
+
+# Run all tests including login tests (requires credentials in kiosque.conf)
 uv run pytest
+
+# Run only login tests
+uv run pytest -m "login"
 
 # Format and lint code
 uv run ruff format .
 uv run ruff check .
+```
+
+### Test Configuration
+
+**Login Tests:** Tests in `tests/test_login.py` require real credentials and are marked with `@pytest.mark.login`. These tests:
+- Make real HTTP requests to websites
+- Require credentials configured in `~/.config/kiosque/kiosque.conf`
+- Are automatically excluded in CI/CD to protect credentials
+- Should be run locally before submitting login-related changes
+
+**Running Tests:**
+```bash
+# CI-safe tests only (no credentials required)
+uv run pytest -m "not login"
+
+# All tests including login (requires credentials)
+uv run pytest
+
+# Specific login test
+uv run pytest tests/test_login.py::test_website_login -k "lemonde"
 ```
 
 ## Adding a New Website

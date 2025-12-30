@@ -81,3 +81,11 @@ warn_no_return = true
 warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+markers = [
+    "login: marks tests as requiring real credentials (deselect with '-m \"not login\"')",
+]
+testpaths = ["tests"]
+# Exclude login tests by default in CI
+addopts = "--strict-markers"

@@ -222,13 +222,18 @@ uv sync --dev
 # Run development version
 uv run kiosque
 
-# Run tests
+# Run tests (excluding login tests that require credentials)
+uv run pytest -m "not login"
+
+# Run all tests including login tests (requires credentials configured)
 uv run pytest
 
 # Format and lint code
 uv run ruff format .
 uv run ruff check .
 ```
+
+**Note:** Login tests require credentials in `~/.config/kiosque/kiosque.conf` and are excluded in CI. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ### Requirements
 

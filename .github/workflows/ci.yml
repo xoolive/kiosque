@@ -35,3 +35,6 @@ jobs:
       - name: Run ty type checking
         run: uvx ty check kiosque/
         continue-on-error: true
+
+      - name: Run tests (excluding login tests)
+        run: uv run pytest -v -m "not login"

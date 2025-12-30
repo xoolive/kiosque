@@ -4,6 +4,9 @@ NOTE: These tests make real HTTP requests to websites. Login mechanisms
 may change over time, causing tests to fail. Failures often indicate
 that the website's login flow has changed and needs updating in the
 corresponding website implementation file.
+
+These tests are marked with @pytest.mark.login and are skipped in CI.
+Run locally with: pytest tests/test_login.py
 """
 
 import pytest
@@ -23,6 +26,7 @@ KNOWN_BROKEN_LOGINS = {
 }
 
 
+@pytest.mark.login
 @pytest.mark.parametrize(
     "base_url", [url for url in config_dict.keys() if url.startswith("http")]
 )
