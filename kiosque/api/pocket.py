@@ -117,7 +117,7 @@ class PocketAPI:
         return r.json()
 
     async def async_action(self, action: str, item_id: str):
-        r = self.client.post(
+        r = await self.async_client.post(
             "https://getpocket.com/v3/send",
             json={
                 "consumer_key": self.consumer_key,

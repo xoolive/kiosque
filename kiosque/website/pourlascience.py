@@ -69,5 +69,8 @@ class PourLaScience(Website):
 
     def file_name(self, c) -> str:
         return unquote(
-            c.headers["Content-Disposition"].split(";")[2].split("=")[1].strip('"')[7:]
+            c.headers["Content-Disposition"]
+            .split(";")[2]
+            .split("=")[1]
+            .strip('"')[7:]
         )

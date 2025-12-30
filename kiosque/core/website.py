@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from bs4._typing import _StrainableAttributes
 from bs4.element import Tag
 
-from .client import client
+from .client import client, get_with_retry, post_with_retry
 from .config import config_dict
 
 
@@ -106,7 +106,7 @@ class Website:
                     return cls.known_websites[-1]()
 
         # -- Attempt to access the website, and fetch for the real URL --
-        c = client.get(url_or_alias)
+        c = get_with_retry(url_or_alias)
         c.raise_for_status()
         e = BeautifulSoup(c.content, features="lxml")
         new_url_node = e.find("meta", {"property": "og:url"})
@@ -124,7 +124,7 @@ class Website:
         return {}
 
     def login(self) -> httpx.Response | None:
-        c = client.get(self.base_url)
+        c = get_with_retry(self.base_url)
         c.raise_for_status()
 
         logging.info(f"Logging in at {self.login_url}")
@@ -133,7 +133,7 @@ class Website:
         if self.connected or login_dict == {}:
             return None
 
-        c = client.post(
+        c = post_with_retry(
             self.login_url,
             data=login_dict,
             headers={
@@ -154,7 +154,7 @@ class Website:
             self.login()
         # Just in case this URL has been redirected...
         url = self.url_translation.get(url, url)
-        c = client.get(url)
+        c = get_with_retry(url)
         c.raise_for_status()
         return BeautifulSoup(c.content, features="lxml")
 
@@ -240,7 +240,7 @@ class Website:
     def content(self, url: str) -> str:
         article = self.article(url)
         article = self.clean(article)
-        return pypandoc.convert_text(article, "md", format="html")
+        return pypandoc.convert_text(str(article), "md", format="html")
 
     def full_text(self, url: str) -> str:
         return f"{self.header(url)}\n{self.content(url)}"
@@ -268,7 +268,7 @@ class Website:
         if not self.connected:
             self.login()
         url = self.latest_issue_url()
-        c = client.get(url)
+        c = get_with_retry(url)
         return c
 
     def save_latest_issue(self):

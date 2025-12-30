@@ -141,3 +141,31 @@ class RaindropAPI:
         )
         response.raise_for_status()
         return [RaindropItem(**item) for item in response.json()["items"]]
+
+    async def async_retrieve(self, offset: int = 0) -> Dict[str, Any]:
+        """Legacy method for compatibility - returns raw JSON."""
+        response = await self.async_client.get(
+            f"https://api.raindrop.io/rest/v1/raindrops/0?page={offset // 30}"
+        )
+        response.raise_for_status()
+        json_data = response.json()
+        # Convert to format expected by TUI (using "list" key with dict of items)
+        items_dict = {str(item["_id"]): item for item in json_data["items"]}
+        return {"list": items_dict, "count": json_data["count"]}
+
+    async def async_action(self, action: str, item_id: int) -> Dict[str, Any]:
+        """Perform an action on a raindrop item."""
+        # Actions: "remove", "archive", etc.
+        if action == "archive":
+            # Move to archive collection (collection ID -99 is trash)
+            response = await self.async_client.put(
+                f"https://api.raindrop.io/rest/v1/raindrop/{item_id}",
+                json={"collection": {"$id": -99}},
+            )
+        else:
+            # For other actions, use the generic action endpoint if available
+            response = await self.async_client.delete(
+                f"https://api.raindrop.io/rest/v1/raindrop/{item_id}"
+            )
+        response.raise_for_status()
+        return response.json()

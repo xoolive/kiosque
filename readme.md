@@ -62,7 +62,7 @@ pip install kiosque
 Development version:
 
 ```bash
-poetry install
+uv sync --dev
 ```
 
 ## Supported websites

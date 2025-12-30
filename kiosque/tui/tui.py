@@ -4,7 +4,6 @@ import logging
 import re
 import webbrowser
 
-import pandas as pd
 import pyperclip
 from rich.text import Text
 from textual import events, on
@@ -254,40 +253,6 @@ class Kiosque(App):
             container.children[0].focus()
 
         self.title = f"Kiosque ({len(container.children)})"
-        return
-
-        if len(container.children) == 0:
-            more_entries = True
-            offset = 0
-            while more_entries:
-                try:
-                    new_entries = await self.retrieve(offset=offset)
-                except Exception as exc:
-                    self.notify(f"Error: {exc}")
-                    return
-                if len(new_entries) == 0:
-                    more_entries = False
-                else:
-                    offset += 30
-                for entry in new_entries:
-                    await container.mount(entry)
-                else:
-                    container.children[0].focus()
-        else:
-            try:
-                new_entries = await self.retrieve(offset=0)
-            except Exception as exc:
-                self.notify(f"Error: {exc}")
-                return
-            # for widget in container.children:
-            #     if widget not in new_entries:
-            #         widget.remove()
-            n = sum(1 for e in new_entries if e not in container.children)
-            self.notify(f"Adding {n} entries")
-            for entry in new_entries[::-1]:
-                if entry not in container.children:
-                    await container.mount(entry, before=container.children[0])
-                    entry.focus()
 
 
 def main() -> None:

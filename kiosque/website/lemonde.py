@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from ..core.client import client
+from ..core.client import get_with_retry
 from ..core.website import Website
 
 
@@ -24,7 +24,7 @@ class LeMonde(Website):
         credentials = self.credentials
         assert credentials is not None
 
-        c = client.get(self.login_url)
+        c = get_with_retry(self.login_url)
         c.raise_for_status()
 
         e = BeautifulSoup(c.content, features="lxml")
@@ -46,7 +46,9 @@ class LeMonde(Website):
         if article is None:
             article = e.find("section", attrs={"class": "article__content"})
         else:
-            embedded = article.find("section", attrs={"class": "article__content"})
+            embedded = article.find(
+                "section", attrs={"class": "article__content"}
+            )
             if embedded is not None:
                 article = embedded
 

@@ -1,5 +1,5 @@
 import logging
-import urllib
+import urllib.parse
 from datetime import datetime
 from typing import ClassVar, cast
 

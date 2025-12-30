@@ -1,5 +1,6 @@
-from ..core.website import Website
 from bs4 import BeautifulSoup
+
+from ..core.website import Website
 
 
 class UsineNouvelle(Website):
