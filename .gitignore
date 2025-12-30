@@ -1,5 +1,6 @@
 # Local test/config files
 kiosque.conf
+plan.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
