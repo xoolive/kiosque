@@ -56,6 +56,21 @@ class ProxyConfig(BaseModel):
         return v
 
 
+class GitHubConfig(BaseModel):
+    """Model for GitHub configuration."""
+
+    token: str = Field(
+        ..., min_length=1, description="GitHub Personal Access Token"
+    )
+
+    @field_validator("token")
+    @classmethod
+    def validate_token(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("GitHub token cannot be empty")
+        return v.strip()
+
+
 class TUIConfig(BaseModel):
     """Model for TUI configuration."""
 
@@ -92,6 +107,12 @@ if not config_dir.exists():
 # Raindrop.io configuration (for TUI mode)
 # Get your token from https://app.raindrop.io/settings/integrations
 # [raindrop.io]
+# token =
+#
+# GitHub configuration (for TUI mode - view starred repos)
+# Get your token from https://github.com/settings/tokens
+# Create a classic token with 'public_repo' or 'repo' scope
+# [github]
 # token =
 #
 # TUI configuration (optional)
@@ -138,6 +159,26 @@ def validate_raindrop_config() -> RaindropConfig | None:
         return RaindropConfig(**raindrop_data)
     except ValidationError as e:
         logging.error(f"Invalid Raindrop.io configuration: {e}")
+        raise
+
+
+def validate_github_config() -> GitHubConfig | None:
+    """Validate GitHub configuration if present.
+
+    Returns:
+        GitHubConfig if configuration is valid, None if not present.
+
+    Raises:
+        ValidationError: If configuration is present but invalid.
+    """
+    github_data = config_dict.get("github")
+    if github_data is None:
+        return None
+
+    try:
+        return GitHubConfig(**github_data)
+    except ValidationError as e:
+        logging.error(f"Invalid GitHub configuration: {e}")
         raise
 
 
