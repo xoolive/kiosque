@@ -1,0 +1,3083 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="News article extraction and bookmark management tool">
+      
+      
+        <meta name="author" content="Xavier Olive">
+      
+      
+        <link rel="canonical" href="https://xoolive.github.io/kiosque/features/tui-guide/">
+      
+      
+        <link rel="prev" href="../bookmark-management/">
+      
+      
+        <link rel="next" href="../../integrations/raindrop/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>TUI Guide - Kiosque</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tui-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kiosque" class="md-header__button md-logo" aria-label="Kiosque" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kiosque
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TUI Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/xoolive/kiosque" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    xoolive/kiosque
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../article-extraction/" class="md-tabs__link">
+          
+  
+  
+  Features
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integrations/raindrop/" class="md-tabs__link">
+          
+  
+  
+  Integrations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../websites/supported-sites/" class="md-tabs__link">
+          
+  
+  
+  Websites
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/architecture/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../troubleshooting/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kiosque" class="md-nav__button md-logo" aria-label="Kiosque" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kiosque
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/xoolive/kiosque" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    xoolive/kiosque
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../article-extraction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Article Extraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bookmark-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bookmark Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launching-the-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launching the TUI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interface-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navigation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#movement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Movement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tab-switching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tab Switching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-and-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search and Filtering
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search and Filtering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#activating-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activating Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-mode-restrictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Mode Restrictions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entry-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry Actions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Entry Actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-actions-all-tabs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Actions (All Tabs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raindrop-specific-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raindrop-Specific Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-specific-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub-Specific Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag-editing-raindrop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Editing (Raindrop)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tag Editing (Raindrop)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entering-tag-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entering Tag Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#savingcanceling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving/Canceling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preview-modal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview Modal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Preview Modal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modal-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal Controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#general-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Actions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#application-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refresh-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refresh Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#window-title" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Window Title
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#progressive-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive Loading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Sources
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raindropio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raindrop.io
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-stars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Stars
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-and-tricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips and Tricks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tips and Tricks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#efficient-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Efficient Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#effective-searching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Effective Searching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tab-doesnt-appear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tab doesn't appear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-not-working" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search not working
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preview-shows-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview shows errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#actions-not-responding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions not responding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slow-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slow performance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard-shortcuts-quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard Shortcuts Quick Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyboard Shortcuts Quick Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#essential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Essential
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raindrop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raindrop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/raindrop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raindrop.io
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Stars
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Websites
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Websites
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../websites/supported-sites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported Sites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../websites/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../websites/nyt-cookie-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NYT Cookie Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../websites/adding-sites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Sites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launching-the-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launching the TUI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interface-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navigation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#movement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Movement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tab-switching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tab Switching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-and-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search and Filtering
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search and Filtering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#activating-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activating Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-mode-restrictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Mode Restrictions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entry-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry Actions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Entry Actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-actions-all-tabs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Actions (All Tabs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raindrop-specific-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raindrop-Specific Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-specific-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub-Specific Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag-editing-raindrop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Editing (Raindrop)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tag Editing (Raindrop)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entering-tag-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entering Tag Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#savingcanceling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving/Canceling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preview-modal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview Modal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Preview Modal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modal-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal Controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#general-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Actions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#application-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refresh-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refresh Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#window-title" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Window Title
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#progressive-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive Loading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Sources
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raindropio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raindrop.io
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-stars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Stars
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-and-tricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips and Tricks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tips and Tricks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#efficient-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Efficient Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#effective-searching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Effective Searching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tab-doesnt-appear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tab doesn't appear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-not-working" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search not working
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preview-shows-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview shows errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#actions-not-responding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions not responding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slow-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slow performance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard-shortcuts-quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard Shortcuts Quick Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyboard Shortcuts Quick Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#essential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Essential
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raindrop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raindrop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/xoolive/kiosque/edit/main/docs/features/tui-guide.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="tui-guide">TUI Guide<a class="headerlink" href="#tui-guide" title="Permanent link">&para;</a></h1>
+<p>Complete reference for Kiosque's Terminal User Interface (TUI).</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The Kiosque TUI provides a unified interface for managing bookmarks from multiple sources:</p>
+<ul>
+<li><strong>Raindrop.io</strong> - Personal bookmark manager with tags and collections</li>
+<li><strong>GitHub Stars</strong> - Your starred repositories with README previews</li>
+</ul>
+<h2 id="launching-the-tui">Launching the TUI<a class="headerlink" href="#launching-the-tui" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Default: launches TUI</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>kiosque
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Or explicitly</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>kiosque<span class="w"> </span>tui
+</code></pre></div>
+<h2 id="interface-layout">Interface Layout<a class="headerlink" href="#interface-layout" title="Permanent link">&para;</a></h2>
+<p><img alt="Kiosque TUI Screenshot" src="../tui-screenshot.svg" /></p>
+<p>The TUI features:</p>
+<ul>
+<li><strong>Header</strong>: Shows window title with total entry counts for each tab</li>
+<li><strong>Tabs</strong>: Switch between Raindrop and GitHub Stars (<code>1</code>/<code>2</code>)</li>
+<li><strong>Entry List</strong>: Scrollable list of bookmarks with:</li>
+<li>Title (bold, first line)</li>
+<li>Date (right-aligned)</li>
+<li>Tags/topics (gray, italic)</li>
+<li>URL (blue)</li>
+<li>Brief description/excerpt</li>
+<li><strong>Search Input</strong>: Filter entries by typing <code>/</code></li>
+<li><strong>Footer</strong>: Quick reference for key bindings</li>
+</ul>
+<h2 id="navigation">Navigation<a class="headerlink" href="#navigation" title="Permanent link">&para;</a></h2>
+<h3 id="movement">Movement<a class="headerlink" href="#movement" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>↑</code> / <code>k</code></td>
+<td>Move up one entry</td>
+</tr>
+<tr>
+<td><code>↓</code> / <code>j</code></td>
+<td>Move down one entry</td>
+</tr>
+<tr>
+<td><code>Ctrl+u</code></td>
+<td>Scroll up 5 entries</td>
+</tr>
+<tr>
+<td><code>Ctrl+d</code></td>
+<td>Scroll down 5 entries</td>
+</tr>
+<tr>
+<td><code>g</code></td>
+<td>Jump to top</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>Jump to bottom (Shift+g)</td>
+</tr>
+<tr>
+<td><code>PageUp</code></td>
+<td>Scroll up one page</td>
+</tr>
+<tr>
+<td><code>PageDown</code></td>
+<td>Scroll down one page</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tab-switching">Tab Switching<a class="headerlink" href="#tab-switching" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>1</code></td>
+<td>Switch to Raindrop tab</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>Switch to GitHub Stars tab</td>
+</tr>
+<tr>
+<td><code>Tab</code></td>
+<td>Cycle through tabs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="search-and-filtering">Search and Filtering<a class="headerlink" href="#search-and-filtering" title="Permanent link">&para;</a></h2>
+<h3 id="activating-search">Activating Search<a class="headerlink" href="#activating-search" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>Activate search bar</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Clear search / Exit search</td>
+</tr>
+<tr>
+<td><code>Ctrl+C</code></td>
+<td>Clear search / Exit search</td>
+</tr>
+</tbody>
+</table>
+<h3 id="search-behavior">Search Behavior<a class="headerlink" href="#search-behavior" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Debounced</strong> - Waits 300ms after you stop typing before filtering</li>
+<li><strong>Case-insensitive</strong> - Searches regardless of letter case</li>
+<li><strong>Multi-field</strong> - Searches across:</li>
+<li>Title</li>
+<li>URL</li>
+<li>Tags (Raindrop)</li>
+<li>Topics (GitHub)</li>
+<li>Description</li>
+<li>Language (GitHub)</li>
+<li>Repository name (GitHub)</li>
+</ul>
+<p><strong>Example searches:</strong></p>
+<ul>
+<li><code>python</code> - Finds all entries with "python" in any field</li>
+<li><code>#tutorial</code> - Finds entries tagged "tutorial"</li>
+<li><code>github.com</code> - Finds all GitHub URLs</li>
+</ul>
+<h3 id="search-mode-restrictions">Search Mode Restrictions<a class="headerlink" href="#search-mode-restrictions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Tag editing disabled</strong> - When in tag edit mode (press <code>t</code>), search is automatically disabled</li>
+<li><strong>Single mode active</strong> - Cannot search while editing tags</li>
+</ul>
+<h2 id="entry-actions">Entry Actions<a class="headerlink" href="#entry-actions" title="Permanent link">&para;</a></h2>
+<h3 id="common-actions-all-tabs">Common Actions (All Tabs)<a class="headerlink" href="#common-actions-all-tabs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Space</code></td>
+<td>Preview</td>
+<td>Open article/README in modal viewer</td>
+</tr>
+<tr>
+<td><code>Enter</code> / <code>o</code></td>
+<td>Open in browser</td>
+<td>Opens URL in default browser</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>Copy URL</td>
+<td>Copy entry URL to clipboard</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Close modal</td>
+<td>Exit preview modal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="raindrop-specific-actions">Raindrop-Specific Actions<a class="headerlink" href="#raindrop-specific-actions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>d</code></td>
+<td>Delete</td>
+<td>Permanently delete bookmark</td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>Archive</td>
+<td>Move bookmark to archive</td>
+</tr>
+<tr>
+<td><code>t</code></td>
+<td>Edit tags</td>
+<td>Enter tag editing mode</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td>Star on GitHub</td>
+<td>Star GitHub repos (only for GitHub URLs)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="github-specific-actions">GitHub-Specific Actions<a class="headerlink" href="#github-specific-actions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>u</code></td>
+<td>Unstar</td>
+<td>Remove star from repository</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>Preview README</td>
+<td>View repository README in modal</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tag-editing-raindrop">Tag Editing (Raindrop)<a class="headerlink" href="#tag-editing-raindrop" title="Permanent link">&para;</a></h2>
+<h3 id="entering-tag-mode">Entering Tag Mode<a class="headerlink" href="#entering-tag-mode" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Navigate to a Raindrop bookmark</li>
+<li>Press <code>t</code></li>
+<li>Tag edit field appears</li>
+</ol>
+<h3 id="input-formats">Input Formats<a class="headerlink" href="#input-formats" title="Permanent link">&para;</a></h3>
+<p>The tag editor accepts multiple formats:</p>
+<p><strong>Space-separated:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python programming tui
+</code></pre></div>
+<p><strong>Comma-separated:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python, programming, tui
+</code></pre></div>
+<p><strong>Hashtags:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>#python #programming #tui
+</code></pre></div>
+<p><strong>Mixed:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python, #programming tui
+</code></pre></div>
+<p>All formats are normalized to a consistent tag list.</p>
+<h3 id="savingcanceling">Saving/Canceling<a class="headerlink" href="#savingcanceling" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enter</code></td>
+<td>Save tags and exit tag mode</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Cancel and exit tag mode</td>
+</tr>
+</tbody>
+</table>
+<h3 id="important-notes">Important Notes<a class="headerlink" href="#important-notes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Search disabled</strong> - While editing tags, search is automatically disabled</li>
+<li><strong>Immediate sync</strong> - Tags are synchronized with Raindrop.io on save</li>
+<li><strong>Visual feedback</strong> - Tags appear as <code>#tag1 #tag2</code> in the entry display</li>
+</ul>
+<h2 id="preview-modal">Preview Modal<a class="headerlink" href="#preview-modal" title="Permanent link">&para;</a></h2>
+<h3 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Markdown rendering</strong> - Articles and READMEs displayed with formatting</li>
+<li><strong>Syntax highlighting</strong> - Code blocks highlighted</li>
+<li><strong>Scroll support</strong> - Navigate long documents</li>
+<li><strong>Frontmatter display</strong> - Shows metadata (title, date, author)</li>
+</ul>
+<h3 id="modal-controls">Modal Controls<a class="headerlink" href="#modal-controls" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>↑</code> / <code>k</code></td>
+<td>Scroll up</td>
+</tr>
+<tr>
+<td><code>↓</code> / <code>j</code></td>
+<td>Scroll down</td>
+</tr>
+<tr>
+<td><code>PageUp</code></td>
+<td>Scroll up one page</td>
+</tr>
+<tr>
+<td><code>PageDown</code></td>
+<td>Scroll down one page</td>
+</tr>
+<tr>
+<td><code>g</code></td>
+<td>Jump to top</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>Jump to bottom</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Close modal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="known-issue">Known Issue<a class="headerlink" href="#known-issue" title="Permanent link">&para;</a></h3>
+<p><strong>Link Navigation Error</strong>: Clicking links in preview modals opens them in the browser correctly, but also triggers a <code>FileNotFoundError</code> due to Textual framework trying to navigate to the URL as a local file. This is a Textual bug, not a Kiosque issue. The link still opens correctly - just ignore the error message.</p>
+<h2 id="general-actions">General Actions<a class="headerlink" href="#general-actions" title="Permanent link">&para;</a></h2>
+<h3 id="application-control">Application Control<a class="headerlink" href="#application-control" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>r</code></td>
+<td>Refresh current tab</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td>Quit application</td>
+</tr>
+<tr>
+<td><code>Ctrl+C</code></td>
+<td>Quit application (force)</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>Show help (if implemented)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="refresh-behavior">Refresh Behavior<a class="headerlink" href="#refresh-behavior" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Current tab only</strong> - Press <code>r</code> to refresh active tab</li>
+<li><strong>Shows loading indicator</strong> - Visual feedback during refresh</li>
+<li><strong>Preserves position</strong> - Attempts to maintain scroll position</li>
+</ul>
+<h2 id="window-title">Window Title<a class="headerlink" href="#window-title" title="Permanent link">&para;</a></h2>
+<p>The window title shows real-time counts:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Kiosque (42) · Raindrop (30) · GitHub (12)
+</code></pre></div>
+<ul>
+<li><strong>Total count</strong> - <code>(42)</code> - Combined entries across all tabs</li>
+<li><strong>Per-tab counts</strong> - <code>Raindrop (30)</code> - Entries in each tab</li>
+<li><strong>Live updates</strong> - Updates after delete, archive, refresh</li>
+</ul>
+<h2 id="progressive-loading">Progressive Loading<a class="headerlink" href="#progressive-loading" title="Permanent link">&para;</a></h2>
+<p>The TUI uses progressive loading for better responsiveness:</p>
+<ol>
+<li><strong>Raindrop loads first</strong> - Appears immediately</li>
+<li><strong>100ms delay</strong> - Brief pause</li>
+<li><strong>GitHub loads</strong> - Fetched in background</li>
+<li><strong>Non-blocking</strong> - UI remains responsive during load</li>
+</ol>
+<h2 id="data-sources">Data Sources<a class="headerlink" href="#data-sources" title="Permanent link">&para;</a></h2>
+<h3 id="raindropio">Raindrop.io<a class="headerlink" href="#raindropio" title="Permanent link">&para;</a></h3>
+<p><strong>Configuration required:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[raindrop.io]</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="na">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">your_raindrop_api_token</span>
+</code></pre></div>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Browse all bookmarks with metadata</li>
+<li>Preview articles with markdown rendering</li>
+<li>Archive bookmarks</li>
+<li>Delete bookmarks</li>
+<li>Edit tags inline</li>
+<li>Star GitHub repositories found in bookmarks</li>
+</ul>
+<p>See <a href="../../integrations/raindrop/">Raindrop Integration</a></p>
+<h3 id="github-stars">GitHub Stars<a class="headerlink" href="#github-stars" title="Permanent link">&para;</a></h3>
+<p><strong>Configuration required:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[github]</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="na">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ghp_your_github_personal_access_token</span>
+</code></pre></div>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Browse starred repositories</li>
+<li>Preview README files</li>
+<li>Unstar repositories</li>
+<li>View star count, language, topics</li>
+<li>Search by name, description, topics</li>
+</ul>
+<p>See <a href="../../integrations/github/">GitHub Stars Integration</a></p>
+<h2 id="tips-and-tricks">Tips and Tricks<a class="headerlink" href="#tips-and-tricks" title="Permanent link">&para;</a></h2>
+<h3 id="efficient-navigation">Efficient Navigation<a class="headerlink" href="#efficient-navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Use vim keys</strong> - <code>j</code>/<code>k</code> are faster than arrow keys</li>
+<li><strong>Jump to ends</strong> - <code>g</code> and <code>G</code> to quickly reach top/bottom</li>
+<li><strong>Page scrolls</strong> - <code>Ctrl+d</code>/<code>Ctrl+u</code> for faster navigation</li>
+<li><strong>Tab switching</strong> - Use <code>1</code>/<code>2</code> for quick tab switching</li>
+</ul>
+<h3 id="effective-searching">Effective Searching<a class="headerlink" href="#effective-searching" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Start broad</strong> - Search for general terms, then refine</li>
+<li><strong>Use tags</strong> - <code>#tag</code> format for precise tag matching</li>
+<li><strong>Language filter</strong> - Search "Python", "Rust", etc. for GitHub repos</li>
+<li><strong>Wait for debounce</strong> - Let search complete (300ms after typing)</li>
+</ul>
+<h3 id="tag-management">Tag Management<a class="headerlink" href="#tag-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Consistent format</strong> - Use lowercase tags for consistency</li>
+<li><strong>Descriptive tags</strong> - Use meaningful tags: <code>#tutorial</code> not <code>#tut</code></li>
+<li><strong>Multiple tags</strong> - Combine tags for better organization</li>
+<li><strong>Review regularly</strong> - Edit tags to keep them current</li>
+</ul>
+<h3 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Search debouncing</strong> - Prevents lag while typing (300ms delay)</li>
+<li><strong>Progressive loading</strong> - UI stays responsive during data fetch</li>
+<li><strong>Lazy preview</strong> - README/articles only loaded on preview</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="tab-doesnt-appear">Tab doesn't appear<a class="headerlink" href="#tab-doesnt-appear" title="Permanent link">&para;</a></h3>
+<p><strong>GitHub tab missing:</strong></p>
+<ul>
+<li>Verify <code>github</code> token is configured</li>
+<li>Check token hasn't expired</li>
+<li>Ensure <code>[github]</code> section exists in config</li>
+</ul>
+<p><strong>Raindrop tab empty:</strong></p>
+<ul>
+<li>Verify <code>raindrop.io</code> token is configured</li>
+<li>Test token validity: <code>curl -H "Authorization: Bearer TOKEN" https://api.raindrop.io/rest/v1/user</code></li>
+</ul>
+<h3 id="search-not-working">Search not working<a class="headerlink" href="#search-not-working" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Search is debounced - wait 300ms after typing</li>
+<li>Cannot search while editing tags (press <code>Esc</code> to exit tag mode)</li>
+<li>Clear search with <code>Esc</code> and try again</li>
+</ul>
+<h3 id="preview-shows-errors">Preview shows errors<a class="headerlink" href="#preview-shows-errors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Some sites may not be accessible</li>
+<li>GitHub README might be missing</li>
+<li>Network connectivity issue</li>
+<li>Try opening in browser with <code>Enter</code> instead</li>
+</ul>
+<h3 id="actions-not-responding">Actions not responding<a class="headerlink" href="#actions-not-responding" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Ensure correct tab is active</li>
+<li>Some actions only work on specific tabs (e.g., <code>t</code> for Raindrop only)</li>
+<li>Try refreshing the tab with <code>r</code></li>
+</ul>
+<h3 id="slow-performance">Slow performance<a class="headerlink" href="#slow-performance" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Large number of bookmarks (1000+) may slow loading</li>
+<li>GitHub API rate limits (5000/hour with token)</li>
+<li>Network latency</li>
+<li>Try searching to filter entries</li>
+</ul>
+<h2 id="keyboard-shortcuts-quick-reference">Keyboard Shortcuts Quick Reference<a class="headerlink" href="#keyboard-shortcuts-quick-reference" title="Permanent link">&para;</a></h2>
+<h3 id="essential">Essential<a class="headerlink" href="#essential" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>Search</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>Preview</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>Open in browser</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td>Quit</td>
+</tr>
+<tr>
+<td><code>r</code></td>
+<td>Refresh</td>
+</tr>
+</tbody>
+</table>
+<h3 id="navigation_1">Navigation<a class="headerlink" href="#navigation_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>j/k</code></td>
+<td>Up/Down</td>
+</tr>
+<tr>
+<td><code>g/G</code></td>
+<td>Top/Bottom</td>
+</tr>
+<tr>
+<td><code>1/2</code></td>
+<td>Switch tabs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="raindrop">Raindrop<a class="headerlink" href="#raindrop" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t</code></td>
+<td>Edit tags</td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>Archive</td>
+</tr>
+<tr>
+<td><code>d</code></td>
+<td>Delete</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td>Star (GitHub URLs)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="github">GitHub<a class="headerlink" href="#github" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>u</code></td>
+<td>Unstar</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>Preview README</td>
+</tr>
+</tbody>
+</table>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../integrations/raindrop/">Raindrop Integration</a> - Raindrop.io setup and features</li>
+<li><a href="../../integrations/github/">GitHub Stars Integration</a> - GitHub Stars setup and features</li>
+<li><a href="../bookmark-management/">Bookmark Management</a> - Overview of bookmark features</li>
+<li><a href="../../getting-started/configuration/">Configuration</a> - API token setup</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
