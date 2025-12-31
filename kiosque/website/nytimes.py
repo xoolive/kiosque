@@ -62,7 +62,9 @@ class NewYorkTimes(Website):
         logging.warning("   [https://www.nytimes.com]")
         logging.warning("   cookie_nyt_s = <paste_cookie_value_here>")
         logging.warning("")
-        logging.warning("For detailed instructions, see: NYT_COOKIE_SETUP.md")
+        logging.warning(
+            "For detailed instructions, see: https://xoolive.github.io/kiosque/websites/nyt-cookie-setup/"
+        )
         logging.warning("=" * 60)
 
         return None

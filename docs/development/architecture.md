@@ -69,7 +69,6 @@ Abstract base class for all website scrapers:
 **Key Components:**
 
 1. **Class Attributes:**
-
    - `base_url`: Website home URL (required)
    - `login_url`: Authentication endpoint (optional)
    - `alias`: List of short names for CLI (optional)
@@ -78,7 +77,6 @@ Abstract base class for all website scrapers:
    - `header_entries`: Custom HTTP headers (optional)
 
 2. **Core Methods:**
-
    - `instance(url)` - Factory method, returns appropriate Website subclass
    - `bs4(url)` - Fetch URL and return BeautifulSoup object
    - `login()` - Authenticate with website
@@ -186,7 +184,6 @@ Interactive bookmark browser built with [Textual](https://textual.textualize.io/
 **Components:**
 
 1. **`RaindropTUI` (Main App):**
-
    - Displays bookmarks from Raindrop.io
    - Auto-refresh every 5 minutes
    - Keyboard-driven interface
@@ -365,13 +362,11 @@ def get_with_retry(url, **kwargs):
 See `tests/` directory for implementation:
 
 1. **Unit Tests:**
-
    - Configuration validation (`test_config.py`)
    - Website base class (`test_website.py`)
    - API models (`test_raindrop.py`)
 
 2. **Integration Tests:**
-
    - Real login flows (`test_login.py`)
    - HTTP request/response handling
    - End-to-end article extraction (manual testing)
@@ -414,8 +409,8 @@ See `plan.md` for detailed future work, including:
 
 ## Related Documentation
 
-- [README.md](readme.md) - Quick start and usage
-- [CONTRIBUTING.md](CONTRIBUTING.md) - How to add new websites
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues
-- [websites.md](websites.md) - Supported websites list
-- [plan.md](plan.md) - Future development roadmap
+- [Quick Start Guide](../index.md) - Getting started with Kiosque
+- [Contributing Guide](contributing.md) - How to add new websites
+- [Troubleshooting](../troubleshooting.md) - Common issues and solutions
+- [Supported Websites](../websites/supported-sites.md) - Complete list of supported sites
+- [Development Roadmap](roadmap.md) - Future development plans

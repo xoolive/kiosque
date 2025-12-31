@@ -50,12 +50,14 @@ uv run ruff check .
 ### Test Configuration
 
 **Login Tests:** Tests in `tests/test_login.py` require real credentials and are marked with `@pytest.mark.login`. These tests:
+
 - Make real HTTP requests to websites
 - Require credentials configured in `~/.config/kiosque/kiosque.conf`
 - Are automatically excluded in CI/CD to protect credentials
 - Should be run locally before submitting login-related changes
 
 **Running Tests:**
+
 ```bash
 # CI-safe tests only (no credentials required)
 uv run pytest -m "not login"
@@ -74,14 +76,12 @@ uv run pytest tests/test_login.py::test_website_login -k "lemonde"
 Before writing code, inspect the target website:
 
 1. **Find the article container:**
-
    - Open an article in your browser
    - Right-click the main article text → "Inspect Element"
    - Identify the HTML element containing the article (usually `<article>`, `<div class="article">`, etc.)
    - Note the CSS class or ID
 
 2. **Identify elements to remove:**
-
    - Look for elements to exclude: ads, "Read more" buttons, related articles, social media buttons
    - Note their HTML tags and classes
 
@@ -458,7 +458,7 @@ def article(self, url):
    ```
 
 3. **Update documentation:**
-   - Add website to `websites.md` in the appropriate language section
+   - Add website to [Supported Sites](../websites/supported-sites.md) in the appropriate language section
    - Indicate if authentication is supported (☑️)
 
 ### PR Guidelines
@@ -476,7 +476,6 @@ def article(self, url):
    ```
 
 3. **PR description should include:**
-
    - Brief description of the website
    - Whether authentication is supported
    - Any special considerations (e.g., "Login requires solving captcha manually")
@@ -511,7 +510,7 @@ Tested with the following articles:
 - [x] Code formatted with `ruff format`
 - [x] No linting errors (`ruff check`)
 - [x] Tests pass (`pytest`)
-- [x] Added website to `websites.md`
+- [x] Added website to [Supported Sites](../websites/supported-sites.md)
 - [x] Tested article extraction manually
 ```
 
@@ -598,7 +597,7 @@ def article(self, url):
 
 - **Issues:** Open a GitHub issue with the `website-support` label
 - **Questions:** Start a discussion in GitHub Discussions
-- **Documentation:** See [ARCHITECTURE.md](ARCHITECTURE.md) for system design
+- **Documentation:** See [Architecture](architecture.md) for system design
 - **Examples:** Check `kiosque/website/` for 30+ real implementations
 
 ## Thank You!

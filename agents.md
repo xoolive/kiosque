@@ -7,7 +7,8 @@
 ## Coding style
 
 - Run `uv run ruff check` and `uv run ruff format` to check and format code
-- Run `uvx ty check src/ tests/` to check types
+- Run `uvx ty check kiosque/ tests/` to check types
+- Use `prettier` to format markdown files
 
 ## Commit rules
 

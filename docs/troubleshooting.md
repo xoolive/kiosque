@@ -39,6 +39,7 @@ Common issues and solutions for Kiosque.
    ```
 
 3. **Use Python module syntax:**
+
    ```bash
    python -m kiosque
    ```
@@ -62,6 +63,7 @@ Common issues and solutions for Kiosque.
    ```
 
 3. **Reinstall:**
+
    ```bash
    pip uninstall kiosque
    pip install kiosque
@@ -133,6 +135,7 @@ choco install pandoc
    ```
 
 4. **Custom location via environment variable:**
+
    ```bash
    export XDG_CONFIG_HOME=/custom/path
    kiosque
@@ -158,12 +161,12 @@ choco install pandoc
    ```
 
 2. **Check for typos:**
-
    - Section names must be URLs with `https://`
    - URL must end with `/`
    - Key names: `username`, `password`, `token` (lowercase)
 
 3. **Validate with Python:**
+
    ```python
    from kiosque.core.config import config_dict
    print(config_dict)  # Should print dict, not error
@@ -178,7 +181,6 @@ choco install pandoc
 **Solutions:**
 
 1. **Verify credentials:**
-
    - Log in manually via browser to confirm they work
    - Check for special characters that need escaping
    - Some sites use email, others use username
@@ -194,7 +196,6 @@ choco install pandoc
    See `tests/test_login.py` for list of websites with outdated login flows.
 
 4. **Two-factor authentication:**
-
    - Kiosque doesn't support 2FA
    - Some sites allow app-specific passwords - try creating one
 
@@ -217,12 +218,12 @@ choco install pandoc
    ```
 
 2. **Verify credentials work in browser:**
-
    - Try logging in manually
    - Check for password reset requirements
    - Verify subscription is active
 
 3. **Check for special characters:**
+
    ```ini
    # If password contains special chars:
    password = p@ssw0rd!#123  # Should work as-is
@@ -237,8 +238,7 @@ choco install pandoc
 **Solutions:**
 
 1. **Check supported websites:**
-
-   - See `websites.md` for complete list
+   - See [Supported Sites](websites/supported-sites.md) for complete list
    - 30+ websites currently supported
 
 2. **URL must match base_url:**
@@ -252,7 +252,7 @@ choco install pandoc
    ```
 
 3. **Contribute support for new website:**
-   - See [CONTRIBUTING.md](CONTRIBUTING.md)
+   - See [Contributing Guide](development/contributing.md)
    - Adding a new site is usually straightforward
 
 ### "Article content is empty" or "NotImplementedError"
@@ -262,7 +262,6 @@ choco install pandoc
 **Solutions:**
 
 1. **Website changed HTML structure:**
-
    - This is the most common issue
    - Websites update their design, breaking scrapers
    - Open an issue on GitHub with:
@@ -271,7 +270,6 @@ choco install pandoc
      - Error message or empty output
 
 2. **Article requires JavaScript:**
-
    - Some sites load content dynamically with JS
    - Kiosque only handles static HTML
    - Workaround: Try reading in browser reader mode instead
@@ -288,7 +286,6 @@ choco install pandoc
 **Solutions:**
 
 1. **File an issue with:**
-
    - Website name
    - Example article URL
    - Description of unwanted elements
@@ -319,13 +316,11 @@ choco install pandoc
    ```
 
 2. **Verify token is valid:**
-
    - Visit https://app.raindrop.io/settings/integrations
    - Check if token is still active
    - Generate new token if needed
 
 3. **Check for unsorted bookmarks:**
-
    - TUI only shows **Unsorted** bookmarks
    - Move bookmarks to Unsorted collection in Raindrop.io
    - Or modify code to fetch from different collection
@@ -347,7 +342,6 @@ choco install pandoc
 **Solutions:**
 
 1. **Check terminal size:**
-
    - TUI requires minimum terminal size
    - Resize terminal to at least 80x24
 
@@ -380,13 +374,11 @@ choco install pandoc
 **Solutions:**
 
 1. **Verify keybindings:**
-
    - `Esc` closes modal
    - `q` quits (when not in modal)
    - See README for full keybindings
 
 2. **Terminal compatibility:**
-
    - Some terminals don't send all keys correctly
    - Try a different terminal (e.g., iTerm2, Alacritty)
 
@@ -409,7 +401,6 @@ choco install pandoc
    ```
 
 2. **Retry logic is automatic:**
-
    - Kiosque retries 3 times with exponential backoff
    - Wait for all retries to complete (may take 30+ seconds)
 
@@ -441,6 +432,7 @@ choco install pandoc
    ```
 
 2. **Temporary workaround (not recommended):**
+
    ```bash
    export CURL_CA_BUNDLE=""
    kiosque https://example.com/article
@@ -453,7 +445,6 @@ choco install pandoc
 **Solutions:**
 
 1. **Wait before retrying:**
-
    - Most rate limits reset after 15 minutes - 1 hour
 
 2. **Slow down requests:**
@@ -482,7 +473,6 @@ choco install pandoc
    ```
 
    Supported proxy types:
-
    - `socks4://host:port` - SOCKS4 proxy
    - `socks5://host:port` - SOCKS5 proxy (recommended)
    - `http://host:port` - HTTP proxy
@@ -515,7 +505,6 @@ choco install pandoc
 3. **Use commercial VPN service:**
 
    Many VPN services offer SOCKS5 proxies:
-
    - NordVPN: Supports SOCKS5 proxy
    - ExpressVPN: Via manual configuration
    - Shadowsocks: Open-source SOCKS5 solution
@@ -535,7 +524,7 @@ choco install pandoc
 
    When proxy is configured, you'll see on startup:
 
-   ```
+   ```sh
    INFO:root:Using SOCKS proxy: socks5://localhost:1080
    ```
 
@@ -554,11 +543,11 @@ choco install pandoc
 **Solutions:**
 
 1. **Grant Terminal full disk access:**
-
    - System Preferences → Security & Privacy → Privacy
    - Full Disk Access → Add Terminal
 
 2. **Fix config directory permissions:**
+
    ```bash
    chmod 755 ~/.config
    chmod 755 ~/.config/kiosque
@@ -584,39 +573,9 @@ choco install pandoc
    ```
 
 3. **Fix ownership:**
+
    ```bash
    sudo chown $USER:$USER ~/output.md
-   ```
-
-### Windows: "FileNotFoundError" or path issues
-
-**Problem:** File paths not working on Windows.
-
-**Solutions:**
-
-1. **Use forward slashes or raw strings:**
-
-   ```python
-   # Good ✓
-   path = "C:/Users/Name/article.md"
-   path = r"C:\Users\Name\article.md"
-
-   # Bad ✗
-   path = "C:\Users\Name\article.md"  # \U escapes
-   ```
-
-2. **Check config file location:**
-
-   ```bash
-   # Windows config location:
-   %APPDATA%\kiosque\kiosque.conf
-   # Usually: C:\Users\YourName\AppData\Roaming\kiosque\kiosque.conf
-   ```
-
-3. **Use Windows paths in config:**
-   ```ini
-   # Use forward slashes:
-   output_dir = C:/Users/Name/Downloads
    ```
 
 ## Still Having Issues?
@@ -630,7 +589,6 @@ choco install pandoc
    ```
 
 2. **Check existing issues:**
-
    - https://github.com/yourusername/kiosque/issues
 
 3. **Gather debug information:**
@@ -663,24 +621,24 @@ Include:
 - **GitHub Issues:** Bug reports and feature requests
 - **GitHub Discussions:** Questions and community support
 - **Documentation:**
-  - [README.md](readme.md) - Quick start
-  - [ARCHITECTURE.md](ARCHITECTURE.md) - System design
-  - [CONTRIBUTING.md](CONTRIBUTING.md) - Development guide
+  - [Quick Start Guide](index.md) - Getting started
+  - [Architecture](development/architecture.md) - System design
+  - [Contributing Guide](development/contributing.md) - Development guide
 
 ## Common Error Messages Reference
 
-| Error Message                    | Likely Cause              | Solution                               |
-| -------------------------------- | ------------------------- | -------------------------------------- |
-| `Website not supported`          | URL not in supported list | Check `websites.md` or add support     |
-| `NotImplementedError: article()` | Website HTML changed      | Open issue with example URL            |
-| `ConnectionError`                | Network issue             | Check internet, retry                  |
-| `HTTPStatusError: 403`           | Blocked or login failed   | Check credentials, verify subscription |
-| `HTTPStatusError: 404`           | Invalid URL               | Verify URL is correct                  |
-| `HTTPStatusError: 429`           | Rate limited              | Wait 15-60 min before retry            |
-| `ModuleNotFoundError`            | Installation issue        | Reinstall kiosque                      |
-| `FileNotFoundError: pandoc`      | Pandoc not installed      | Install pandoc                         |
-| `ValidationError`                | Config file invalid       | Check INI syntax                       |
-| `AttributeError: 'NoneType'`     | Article element not found | Website HTML changed, open issue       |
+| Error Message                    | Likely Cause              | Solution                                                            |
+| -------------------------------- | ------------------------- | ------------------------------------------------------------------- |
+| `Website not supported`          | URL not in supported list | Check [Supported Sites](websites/supported-sites.md) or add support |
+| `NotImplementedError: article()` | Website HTML changed      | Open issue with example URL                                         |
+| `ConnectionError`                | Network issue             | Check internet, retry                                               |
+| `HTTPStatusError: 403`           | Blocked or login failed   | Check credentials, verify subscription                              |
+| `HTTPStatusError: 404`           | Invalid URL               | Verify URL is correct                                               |
+| `HTTPStatusError: 429`           | Rate limited              | Wait 15-60 min before retry                                         |
+| `ModuleNotFoundError`            | Installation issue        | Reinstall kiosque                                                   |
+| `FileNotFoundError: pandoc`      | Pandoc not installed      | Install pandoc                                                      |
+| `ValidationError`                | Config file invalid       | Check INI syntax                                                    |
+| `AttributeError: 'NoneType'`     | Article element not found | Website HTML changed, open issue                                    |
 
 ## Debug Mode
 

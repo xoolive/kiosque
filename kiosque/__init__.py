@@ -65,7 +65,9 @@ def list_websites() -> None:
     click.echo(f"\nTotal: {len(websites_info)} websites supported\n")
 
 
-@click.command(help="Read newspaper articles in textual format")
+@click.command(
+    help="Read newspaper articles in textual format. Launches TUI by default."
+)
 @click.argument("url_or_alias", required=False)
 @click.argument("output", type=click.File("w"), required=False, default=None)
 @click.option("-v", "--verbose", count=True, help="Verbosity level")
@@ -86,9 +88,10 @@ def main(
         list_websites()
         return
 
-    # url_or_alias is required if not using --list-websites
+    # Launch TUI by default when no arguments provided
     if url_or_alias is None:
-        raise click.UsageError("Missing argument 'URL_OR_ALIAS'")
+        tui_main()
+        return
 
     # Configure logging
     logging.basicConfig(

@@ -1,314 +1,138 @@
 # kiosque
 
-A command-line tool and Python library for downloading and reading articles from paywalled news websites. Extract full article text as Markdown, with support for authentication and integration with Raindrop.io bookmarks.
+A unified tool for news article extraction and bookmark management.
+
+## What is Kiosque?
+
+Kiosque combines three essential capabilities:
+
+1. **Article Extractor (CLI/API)** - Download full-text articles from several paywalled news websites as Markdown
+2. **Bookmark Manager (TUI)** - Browse and manage bookmarks from Raindrop.io and GitHub Stars in a beautiful terminal interface
+3. **Content Aggregator** - Unified tabbed interface for multiple content sources with smart context-aware actions
 
 ## Quick Start
 
 ```bash
-# Launch interactive TUI (Terminal User Interface)
+# Launch TUI (Terminal User Interface) - default
 kiosque
 
-# Download article to file
+# Extract article to file
 kiosque https://www.lemonde.fr/article output.md
 
-# Print article to stdout (pipe to your favorite pager)
+# Print to stdout
 kiosque https://www.nytimes.com/article - | bat - -l md
 ```
 
-## Command-Line Interface
-
-### Article Download
+## Installation
 
 ```bash
-# Save article as Markdown (auto-named from URL)
-kiosque https://url.com/article
+# From PyPI
+pip install kiosque
 
-# Save with custom filename
-kiosque https://url.com/article output.md
-
-# Print to stdout
-kiosque https://url.com/article -
-
-# Verbose mode (shows login & download progress)
-kiosque -v https://url.com/article -
+# Or with uv (recommended)
+uv tool install kiosque
 ```
 
-### Interactive TUI
+**Requirements:** Python 3.12+, pandoc
 
-```bash
-# Launch TUI to browse Raindrop.io bookmarks
-kiosque
-# or explicitly:
-kiosque tui
-```
+## Core Features
 
-#### TUI Keybindings
+### 📰 Article Extraction
 
-**Navigation:**
-| Key | Action |
-|-----|--------|
-| `↑` / `↓` / `j` / `k` | Navigate entries |
-| `Ctrl+d` / `Ctrl+u` | Scroll down/up by 5 entries |
-| `g` / `G` | Jump to top/bottom |
-| `/` | Search/filter entries |
-| `1` / `2` | Switch between Raindrop/GitHub tabs |
+- **32+ News Websites** - Le Monde, NYT, Guardian, Mediapart, and more
+- **Authentication** - Login support for paywalled sites
+- **Markdown Output** - Clean, readable format with metadata
+- **Proxy Support** - Access geo-blocked websites via SOCKS/HTTP proxies
 
-**Entry Actions:**
-| Key | Action |
-|-----|--------|
-| `Space` | Preview article/README in modal |
-| `Enter` | Open in browser |
-| `c` | Copy URL to clipboard |
-| `d` | Delete bookmark (Raindrop) |
-| `e` | Archive bookmark (Raindrop) |
-| `u` | Unstar repository (GitHub) |
-| `s` | Star on GitHub (Raindrop tab, GitHub URLs only) |
+### 🔖 Bookmark Management
 
-**General:**
-| Key | Action |
-|-----|--------|
-| `r` | Refresh current tab |
-| `q` | Quit application |
-| `Esc` | Close modal |
+- **Raindrop.io Integration** - Browse, preview, archive, delete, edit tags
+- **GitHub Stars** - Explore starred repos, preview READMEs, unstar
+- **Unified Search** - Filter by title, URL, tags, topics across all sources
+- **Beautiful Previews** - Markdown rendering with syntax highlighting
 
-### PDF Download (Latest Issue)
+### 🚀 Content Aggregation
 
-For supported websites that publish periodic PDFs:
+- **Tabbed Interface** - Switch between Raindrop and GitHub (`1`/`2`)
+- **Progressive Loading** - Non-blocking, fast performance
+- **Smart Actions** - Context-aware keybindings (e.g., star GitHub repos from Raindrop)
+- **Live Counts** - `Kiosque (42) · Raindrop (30) · GitHub (12)`
 
-```bash
-# Download latest PDF issue
-kiosque latest_issue https://www.monde-diplomatique.fr/
-```
+## Configuration
 
-## Python API
-
-### Basic Usage
-
-```python
-from kiosque import Website
-
-# Extract article text as Markdown
-url = "https://www.lemonde.fr/article"
-markdown_text = Website.instance(url).full_text(url)
-
-# Save to file
-Website.instance(url).save(url, "article.md")
-```
-
-### Advanced Usage
-
-```python
-from kiosque import Website
-from kiosque.core.config import configuration_file
-
-# Get website instance for a URL
-website = Website.instance("https://www.nytimes.com/article")
-
-# Check if authentication is configured
-if website.credentials:
-    print(f"Username: {website.credentials['username']}")
-
-# Login (if credentials configured)
-website.login()
-
-# Get article metadata
-url = "https://www.nytimes.com/article"
-soup = website.bs4(url)
-title = soup.find("h1").text
-author = soup.find("meta", {"name": "author"})["content"]
-
-# Extract full article as Markdown
-markdown = website.full_text(url)
-
-# Download latest PDF issue (if supported)
-pdf_path = website.save_latest_issue()
-```
-
-### Configuration File Location
-
-```python
-from kiosque.core.config import configuration_file
-
-print(configuration_file)
-# Output: /Users/username/.config/kiosque/kiosque.conf
-```
-
-## Authentication
-
-Many websites require a subscription to access full articles. Configure credentials in the configuration file:
-
-### Configuration File Format
-
-The configuration file uses INI format with sections for each website:
+Create `~/.config/kiosque/kiosque.conf`:
 
 ```ini
-# Website credentials (base URL as section name)
+# Website authentication
 [https://www.lemonde.fr/]
 username = your.email@example.com
 password = your_password
 
 [https://www.nytimes.com/]
-username = your_username
-password = your_password
+cookie_nyt_s = your_nyt_cookie_value
 
-# Raindrop.io integration (optional)
+# Raindrop.io integration
 [raindrop.io]
 token = your_raindrop_api_token
 
-# GitHub Stars integration (optional)
+# GitHub Stars integration
 [github]
 token = ghp_your_github_personal_access_token
-```
 
-### Finding Your Configuration File
-
-```bash
-# View configuration file location
-python -c "from kiosque.core.config import configuration_file; print(configuration_file)"
-```
-
-Default locations:
-- Linux: `~/.config/kiosque/kiosque.conf`
-- macOS: `~/.config/kiosque/kiosque.conf`
-- Windows: `%APPDATA%\kiosque\kiosque.conf`
-
-Or set `XDG_CONFIG_HOME` environment variable to customize the location.
-
-### Raindrop.io Integration
-
-To browse and download bookmarks from Raindrop.io in the TUI:
-
-1. Create a Raindrop.io API token at: https://app.raindrop.io/settings/integrations
-2. Add to your configuration file:
-   ```ini
-   [raindrop.io]
-   token = your_api_token_here
-   ```
-3. Launch the TUI: `kiosque`
-
-### GitHub Stars Integration
-
-To browse your GitHub starred repositories in the TUI:
-
-1. Create a GitHub Personal Access Token at: https://github.com/settings/tokens
-   - Click "Generate new token" → "Generate new token (classic)"
-   - Give it a descriptive name (e.g., "Kiosque TUI")
-   - Select scopes: `public_repo` (or `repo` for private repos)
-   - Click "Generate token" and copy it
-2. Add to your configuration file:
-   ```ini
-   [github]
-   token = ghp_your_github_personal_access_token_here
-   ```
-3. Launch the TUI: `kiosque`
-4. Press `2` to switch to the GitHub Stars tab
-
-**GitHub TUI Features:**
-- Browse all your starred repositories
-- Preview README files in a modal viewer
-- Unstar repositories directly from the TUI
-- Star GitHub repos found in Raindrop bookmarks
-- Search by repository name, description, language, or topics
-
-### Proxy Configuration (for Geo-blocked Websites)
-
-Some websites are geo-blocked and only accessible from specific regions. Kiosque supports SOCKS and HTTP proxies:
-
-```ini
-# Add proxy configuration
+# Proxy for geo-blocked sites (optional)
 [proxy]
 url = socks5://localhost:1080
 ```
 
-Supported formats:
-- `socks5://host:port` (recommended)
-- `socks4://host:port`
-- `http://host:port`
-- `https://host:port`
+## Python API
 
-**Example with SSH tunnel:**
+```python
+from kiosque import Website
 
-```bash
-# Create SOCKS5 proxy to server in France
-ssh -D 1080 -N user@french-server.com
+# Extract article as Markdown
+url = "https://www.lemonde.fr/article"
+markdown = Website.instance(url).full_text(url)
 
-# Configure in kiosque.conf:
-# [proxy]
-# url = socks5://localhost:1080
+# Save to file
+Website.instance(url).save(url, "article.md")
 ```
 
-**Geo-blocked websites:**
-- Courrier International (France/Europe only)
-- Les Échos (France/Europe only)
+## Documentation
 
-See [TROUBLESHOOTING.md](TROUBLESHOOTING.md#403-forbidden-or-406-not-acceptable---geo-blocking) for detailed proxy setup.
+📚 **Full documentation:** https://www.xoolive.org/kiosque
 
-## Installation
+- [Installation](https://www.xoolive.org/kiosque/getting-started/installation/) - Detailed installation guide
+- [Configuration](https://www.xoolive.org/kiosque/getting-started/configuration/) - Authentication setup for all sites
+- [TUI Guide](https://www.xoolive.org/kiosque/features/tui-guide/) - Complete terminal interface reference
+- [Supported Sites](https://www.xoolive.org/kiosque/websites/supported-sites/) - Full list of 32+ websites
+- [Authentication](https://www.xoolive.org/kiosque/websites/authentication/) - Site-specific login instructions
+- [Adding Sites](https://www.xoolive.org/kiosque/websites/adding-sites/) - Contributing new website support
+- [Troubleshooting](https://www.xoolive.org/kiosque/troubleshooting/) - Common issues and solutions
 
-### From PyPI (Recommended)
+## TUI Keybindings
 
-```bash
-pip install kiosque
-```
-
-### Development Installation
-
-For contributing or running the latest development version:
-
-```bash
-# Clone repository
-git clone https://github.com/yourusername/kiosque.git
-cd kiosque
-
-# Install with uv (recommended)
-uv sync --dev
-
-# Run development version
-uv run kiosque
-
-# Run tests (excluding login tests that require credentials)
-uv run pytest -m "not login"
-
-# Run all tests including login tests (requires credentials configured)
-uv run pytest
-
-# Format and lint code
-uv run ruff format .
-uv run ruff check .
-```
-
-**Note:** Login tests require credentials in `~/.config/kiosque/kiosque.conf` and are excluded in CI. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-### Requirements
-
-- Python 3.12+
-- Dependencies: httpx, beautifulsoup4, textual, pypandoc, stamina, pydantic
-- External: pandoc (for HTML to Markdown conversion)
-
-## Supported Websites
-
-A comprehensive list is available in [`websites.md`](websites.md). 
-
-- **30+ news websites** across English, French, and Japanese languages
-- **Authentication support** for many paywalled sites (with valid subscription)
-- **PDF download** for select publications (e.g., Le Monde Diplomatique)
-
-See the full list with authentication status at [websites.md](websites.md).
+| Key                     | Action                       |
+| ----------------------- | ---------------------------- |
+| `↑` or `k` / `↓` or `j` | Navigate entries             |
+| `1` / `2`               | Switch tabs                  |
+| `/`                     | Search                       |
+| `Space`                 | Preview article/README       |
+| `Enter` / `o`           | Open in browser              |
+| `t`                     | Edit tags (Raindrop)         |
+| `e`                     | Archive (Raindrop)           |
+| `d`                     | Delete (Raindrop)            |
+| `u`                     | Unstar (GitHub)              |
+| `s`                     | Star on GitHub (GitHub URLs) |
+| `r`                     | Refresh                      |
+| `q`                     | Quit                         |
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+Contributions welcome! See the [Contributing Guide](https://www.xoolive.org/kiosque/development/contributing/) for:
+
 - How to add support for new websites
-- Website scraper implementation guide
 - Code style and testing guidelines
-
-## Troubleshooting
-
-For common issues and solutions, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
-
-## Architecture
-
-For an overview of the project structure and design, see [ARCHITECTURE.md](ARCHITECTURE.md).
+- Architecture overview
 
 ## License
 
