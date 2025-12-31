@@ -1311,34 +1311,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../development/roadmap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Roadmap
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1591,7 +1563,7 @@
 
 
 <h1 id="article-extraction">Article Extraction<a class="headerlink" href="#article-extraction" title="Permanent link">&para;</a></h1>
-<p>Extract full-text articles from 32+ paywalled news websites.</p>
+<p>Extract full-text articles from paywalled news websites.</p>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>Kiosque can download complete articles from major news publications, converting them to clean Markdown format with metadata preserved.</p>
@@ -1642,12 +1614,11 @@
 </code></pre></div>
 <hr />
 <h2 id="supported-sites">Supported Sites<a class="headerlink" href="#supported-sites" title="Permanent link">&para;</a></h2>
-<p>See <a href="../../websites/supported-sites/">Supported Sites</a> for the complete list of 32+ websites.</p>
+<p>See <a href="../../websites/supported-sites/">Supported Sites</a> for the complete list.</p>
 <p>Major publications include:</p>
 <ul>
 <li><strong>English</strong>: New York Times, The Guardian, Financial Times, The Atlantic</li>
 <li><strong>French</strong>: Le Monde, Le Figaro, Les Échos, Mediapart</li>
-<li><strong>Japanese</strong>: Nikkei, Asahi Shimbun, Yomiuri Shimbun</li>
 </ul>
 <hr />
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
@@ -1682,18 +1653,81 @@
 <li>Handles temporary network issues</li>
 </ul>
 <h3 id="pdf-downloads">PDF Downloads<a class="headerlink" href="#pdf-downloads" title="Permanent link">&para;</a></h3>
-<p>Some publications support PDF export:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">website</span> <span class="o">=</span> <span class="n">Website</span><span class="o">.</span><span class="n">instance</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">pdf_url</span> <span class="o">=</span> <span class="n">website</span><span class="o">.</span><span class="n">pdf_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  <span class="c1"># Returns PDF download URL if available</span>
+<p>Some publications provide downloadable PDF editions (front pages or complete magazine issues):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Download New York Times front page (daily)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>kiosque<span class="w"> </span>nyt
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Download Le Monde Diplomatique issue (monthly)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>kiosque<span class="w"> </span>lmd
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Download Courrier International issue (weekly)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>kiosque<span class="w"> </span>courrier
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Download Pour la Science issue (monthly)</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>kiosque<span class="w"> </span>pls
+</code></pre></div>
+<p>PDFs are saved to the current directory with timestamped filenames (e.g., <code>nyt-frontpage-2025-12-31.pdf</code>).</p>
+<p><strong>Publications with PDF support:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Publication</th>
+<th>Alias(es)</th>
+<th>Type</th>
+<th>Frequency</th>
+<th>Auth Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>New York Times</strong></td>
+<td><code>nyt</code>, <code>nytimes</code></td>
+<td>Front page</td>
+<td>Daily</td>
+<td>Cookie-based</td>
+</tr>
+<tr>
+<td><strong>Le Monde Diplomatique</strong></td>
+<td><code>lmd</code>, <code>diplomatique</code></td>
+<td>Full issue</td>
+<td>Monthly</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Courrier International</strong></td>
+<td><code>courrier</code></td>
+<td>Full issue</td>
+<td>Weekly</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Pour la Science</strong></td>
+<td><code>pls</code></td>
+<td>Full issue</td>
+<td>Monthly</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> Courrier International may be geo-blocked outside France/Europe and require a proxy.</p>
+<p>Python API:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiosque.website.nytimes</span><span class="w"> </span><span class="kn">import</span> <span class="n">NewYorkTimes</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># Download today&#39;s front page PDF</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">nyt</span> <span class="o">=</span> <span class="n">NewYorkTimes</span><span class="p">()</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">nyt</span><span class="o">.</span><span class="n">save_latest_issue</span><span class="p">()</span>  <span class="c1"># Saves to current directory</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Get PDF URL</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">pdf_url</span> <span class="o">=</span> <span class="n">nyt</span><span class="o">.</span><span class="n">latest_issue_url</span><span class="p">()</span>  <span class="c1"># https://static01.nyt.com/images/2025/12/31/nytfrontpage/scan.pdf</span>
 </code></pre></div>
 <h3 id="custom-headers">Custom Headers<a class="headerlink" href="#custom-headers" title="Permanent link">&para;</a></h3>
 <p>Override HTTP headers for specific sites:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiosque.core.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">client</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom User Agent&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="s2">&quot;Referer&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com&quot;</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">})</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiosque.core.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">client</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom User Agent&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">&quot;Referer&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com&quot;</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">})</span>
 </code></pre></div>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
