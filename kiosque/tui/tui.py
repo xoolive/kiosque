@@ -333,6 +333,7 @@ class Kiosque(App):
         self.github_client: GitHubAPI | None = None
         self.has_raindrop = False
         self.has_github = False
+        self._search_timer: asyncio.TimerHandle | None = None
 
     def on_load(self, event: events.Load) -> None:
         """Sent before going in to application mode."""
@@ -366,6 +367,16 @@ class Kiosque(App):
             pass
 
     @on(Input.Changed)
+    def schedule_filter(self) -> None:
+        """Schedule filter with debouncing - 300ms after last keystroke."""
+        # Cancel any existing timer
+        if self._search_timer is not None:
+            self._search_timer.cancel()
+
+        # Schedule new filter execution after 300ms
+        loop = asyncio.get_event_loop()
+        self._search_timer = loop.call_later(0.3, self.filter_items)
+
     def filter_items(self) -> None:
         search_key = self.query_one(Input).value
 
