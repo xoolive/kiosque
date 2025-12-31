@@ -170,3 +170,39 @@ class RaindropAPI:
             )
         response.raise_for_status()
         return response.json()
+
+    async def update_tags_async(
+        self, raindrop_id: int, tags: list[str]
+    ) -> dict[str, Any]:
+        """Update tags for a Raindrop item.
+
+        Args:
+            raindrop_id: The ID of the raindrop item
+            tags: List of tag names (without # prefix)
+
+        Returns:
+            Updated raindrop item data
+        """
+        response = await self.async_client.put(
+            f"https://api.raindrop.io/rest/v1/raindrop/{raindrop_id}",
+            json={"tags": tags},
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def update_tags(self, raindrop_id: int, tags: list[str]) -> dict[str, Any]:
+        """Update tags for a Raindrop item (sync version).
+
+        Args:
+            raindrop_id: The ID of the raindrop item
+            tags: List of tag names (without # prefix)
+
+        Returns:
+            Updated raindrop item data
+        """
+        response = self.client.put(
+            f"https://api.raindrop.io/rest/v1/raindrop/{raindrop_id}",
+            json={"tags": tags},
+        )
+        response.raise_for_status()
+        return response.json()

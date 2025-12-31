@@ -77,7 +77,109 @@ class SearchBar(Input):
         Binding("escape", "clear", show=False),
     ]
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tag_mode = False
+        self.tag_entry: Entry | None = None
+        self.original_tags: list[str] = []
+
+    def enter_tag_mode(self, entry: Entry) -> None:
+        """Enter tag editing mode for the given entry."""
+        self.tag_mode = True
+        self.tag_entry = entry
+        self.original_tags = entry.tags.copy()
+        # Populate with current tags
+        self.value = " ".join(f"#{tag}" for tag in entry.tags)
+        self.placeholder = "Edit tags (space-separated, with or without #)"
+        self.focus()
+
+    def exit_tag_mode(self) -> None:
+        """Exit tag editing mode."""
+        self.tag_mode = False
+        self.tag_entry = None
+        self.original_tags = []
+        self.value = ""
+        self.placeholder = "Search..."
+        # Trigger filter to show all items again
+        if hasattr(self.app, "filter_items"):
+            self.app.filter_items()  # type: ignore
+
+    def parse_tags(self, tag_string: str) -> list[str]:
+        """Parse tags from input string.
+
+        Supports:
+        - Space-separated: python javascript rust
+        - Comma-separated: python, javascript, rust
+        - With # prefix: #python #javascript #rust
+        - Mixed: #python, javascript rust
+        """
+        # Remove extra whitespace and split by both space and comma
+        tag_string = tag_string.strip()
+        if not tag_string:
+            return []
+
+        # Replace commas with spaces and split
+        parts = tag_string.replace(",", " ").split()
+
+        # Remove # prefix if present and filter empty strings
+        tags = [tag.lstrip("#") for tag in parts if tag.strip()]
+
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_tags = []
+        for tag in tags:
+            if tag and tag not in seen:
+                seen.add(tag)
+                unique_tags.append(tag)
+
+        return unique_tags
+
+    async def on_key(self, event: events.Key) -> None:
+        """Handle key events, especially Enter in tag mode."""
+        if event.key == "enter" and self.tag_mode:
+            event.prevent_default()
+            event.stop()
+            await self.submit_tags()
+
+    async def submit_tags(self) -> None:
+        """Submit the edited tags."""
+        if not self.tag_entry:
+            return
+
+        # Parse tags from input
+        new_tags = self.parse_tags(self.value)
+
+        # Update tags via API
+        entry = self.tag_entry
+        entry_to_focus = entry  # Save reference before exit
+        self.exit_tag_mode()
+
+        try:
+            self.app.notify(f"Updating tags for {entry.title[:30]}...")  # type: ignore
+            await self.app.update_raindrop_tags(entry, new_tags)  # type: ignore
+            # Format success message
+            tags_display = (
+                ", ".join(f"#{t}" for t in new_tags) if new_tags else "(none)"
+            )
+            self.app.notify(f"✓ Tags updated: {tags_display}")  # type: ignore
+        except Exception as e:
+            self.app.notify(f"Error updating tags: {e}", severity="error")  # type: ignore
+            # Restore original tags on error
+            entry.tags = self.original_tags
+
+        # Refocus the entry
+        entry_to_focus.focus()
+
     async def action_clear(self) -> None:
+        if self.tag_mode:
+            # Cancel tag editing
+            entry_to_focus = self.tag_entry
+            self.exit_tag_mode()
+            # Refocus the entry
+            if entry_to_focus:
+                entry_to_focus.focus()
+            return
+
         self.clear()
         # Get the active tab's container
         try:
@@ -207,6 +309,11 @@ class Kiosque(App):
     @on(Input.Changed)
     def schedule_filter(self) -> None:
         """Schedule filter with debouncing - 300ms after last keystroke."""
+        # Don't filter if SearchBar is in tag mode
+        search_bar = self.query_one(SearchBar)
+        if search_bar.tag_mode:
+            return
+
         # Cancel any existing timer
         if self._search_timer is not None:
             self._search_timer.cancel()
@@ -286,6 +393,16 @@ class Kiosque(App):
         await self.raindrop_client.async_action("archive", entry.item_id)
         entry.remove()
         self.update_counts()
+
+    async def update_raindrop_tags(self, entry: Entry, tags: list[str]) -> None:
+        """Update tags for a Raindrop entry."""
+        if not self.raindrop_client:
+            return
+        await self.raindrop_client.update_tags_async(entry.item_id, tags)
+        # Update the entry's tags locally
+        entry.tags = tags
+        # Re-render the entry to show updated tags
+        await entry.recompose()
 
     async def unstar_repo(self, entry: GitHubEntry) -> None:
         """Unstar a GitHub repository."""

@@ -30,6 +30,7 @@ class Entry(Button):
         ("e", "archive", "Archive"),
         Binding("space", "preview", "Preview"),
         ("s", "star_github", "Star on GitHub"),
+        ("t", "edit_tags", "Edit tags"),
     ]
 
     def __init__(self, elt: RaindropItem):
@@ -80,6 +81,10 @@ class Entry(Button):
             return True
         if next(re.finditer(pattern, self.url, re.IGNORECASE), None):
             return True
+        # Search in tags (with or without # prefix)
+        for tag in self.tags:
+            if next(re.finditer(pattern, tag, re.IGNORECASE), None):
+                return True
         return False
 
     def on_focus(self) -> None:
@@ -220,3 +225,9 @@ url: {self.url}
             self.notify("✓ GitHub tab updated")
         except Exception as e:
             self.notify(f"Error starring repository: {e}", severity="error")
+
+    def action_edit_tags(self) -> None:
+        """Edit tags for this bookmark."""
+        # Get the search bar and switch it to tag mode
+        search_bar = self.app.query_one("SearchBar")  # type: ignore
+        search_bar.enter_tag_mode(self)
