@@ -1,6 +1,6 @@
 # Article Extraction
 
-Extract full-text articles from 32+ paywalled news websites.
+Extract full-text articles from paywalled news websites.
 
 ---
 
@@ -69,13 +69,12 @@ Article content in clean Markdown format...
 
 ## Supported Sites
 
-See [Supported Sites](../websites/supported-sites.md) for the complete list of 32+ websites.
+See [Supported Sites](../websites/supported-sites.md) for the complete list.
 
 Major publications include:
 
 - **English**: New York Times, The Guardian, Financial Times, The Atlantic
 - **French**: Le Monde, Le Figaro, Les Échos, Mediapart
-- **Japanese**: Nikkei, Asahi Shimbun, Yomiuri Shimbun
 
 ---
 
@@ -127,11 +126,46 @@ Kiosque automatically retries failed requests with exponential backoff:
 
 ### PDF Downloads
 
-Some publications support PDF export:
+Some publications provide downloadable PDF editions (front pages or complete magazine issues):
+
+```bash
+# Download New York Times front page (daily)
+kiosque nyt
+
+# Download Le Monde Diplomatique issue (monthly)
+kiosque lmd
+
+# Download Courrier International issue (weekly)
+kiosque courrier
+
+# Download Pour la Science issue (monthly)
+kiosque pls
+```
+
+PDFs are saved to the current directory with timestamped filenames (e.g., `nyt-frontpage-2025-12-31.pdf`).
+
+**Publications with PDF support:**
+
+| Publication                | Alias(es)             | Type       | Frequency | Auth Required |
+| -------------------------- | --------------------- | ---------- | --------- | ------------- |
+| **New York Times**         | `nyt`, `nytimes`      | Front page | Daily     | Cookie-based  |
+| **Le Monde Diplomatique**  | `lmd`, `diplomatique` | Full issue | Monthly   | Yes           |
+| **Courrier International** | `courrier`            | Full issue | Weekly    | Yes           |
+| **Pour la Science**        | `pls`                 | Full issue | Monthly   | Yes           |
+
+**Note:** Courrier International may be geo-blocked outside France/Europe and require a proxy.
+
+Python API:
 
 ```python
-website = Website.instance(url)
-pdf_url = website.pdf_url(url)  # Returns PDF download URL if available
+from kiosque.website.nytimes import NewYorkTimes
+
+# Download today's front page PDF
+nyt = NewYorkTimes()
+nyt.save_latest_issue()  # Saves to current directory
+
+# Get PDF URL
+pdf_url = nyt.latest_issue_url()  # https://static01.nyt.com/images/2025/12/31/nytfrontpage/scan.pdf
 ```
 
 ### Custom Headers

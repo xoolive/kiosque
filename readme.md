@@ -21,6 +21,9 @@ kiosque https://www.lemonde.fr/article output.md
 
 # Print to stdout
 kiosque https://www.nytimes.com/article - | bat - -l md
+
+# Download NYT front page PDF
+kiosque nyt
 ```
 
 ## Installation
@@ -39,7 +42,7 @@ uv tool install kiosque
 
 ### 📰 Article Extraction
 
-- **32+ News Websites** - Le Monde, NYT, Guardian, Mediapart, and more
+- **News Websites** - Le Monde, NYT, Guardian, Mediapart, and more
 - **Authentication** - Login support for paywalled sites
 - **Markdown Output** - Clean, readable format with metadata
 - **Proxy Support** - Access geo-blocked websites via SOCKS/HTTP proxies
@@ -53,10 +56,9 @@ uv tool install kiosque
 
 ### 🚀 Content Aggregation
 
-- **Tabbed Interface** - Switch between Raindrop and GitHub (`1`/`2`)
+- **Tabbed Interface** - Switch between Raindrop and GitHub
 - **Progressive Loading** - Non-blocking, fast performance
 - **Smart Actions** - Context-aware keybindings (e.g., star GitHub repos from Raindrop)
-- **Live Counts** - `Kiosque (42) · Raindrop (30) · GitHub (12)`
 
 ## Configuration
 
@@ -104,7 +106,7 @@ Website.instance(url).save(url, "article.md")
 - [Installation](https://www.xoolive.org/kiosque/getting-started/installation/) - Detailed installation guide
 - [Configuration](https://www.xoolive.org/kiosque/getting-started/configuration/) - Authentication setup for all sites
 - [TUI Guide](https://www.xoolive.org/kiosque/features/tui-guide/) - Complete terminal interface reference
-- [Supported Sites](https://www.xoolive.org/kiosque/websites/supported-sites/) - Full list of 32+ websites
+- [Supported Sites](https://www.xoolive.org/kiosque/websites/supported-sites/) - Full list of websites
 - [Authentication](https://www.xoolive.org/kiosque/websites/authentication/) - Site-specific login instructions
 - [Adding Sites](https://www.xoolive.org/kiosque/websites/adding-sites/) - Contributing new website support
 - [Troubleshooting](https://www.xoolive.org/kiosque/troubleshooting/) - Common issues and solutions

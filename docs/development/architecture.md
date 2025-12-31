@@ -413,4 +413,3 @@ See `plan.md` for detailed future work, including:
 - [Contributing Guide](contributing.md) - How to add new websites
 - [Troubleshooting](../troubleshooting.md) - Common issues and solutions
 - [Supported Websites](../websites/supported-sites.md) - Complete list of supported sites
-- [Development Roadmap](roadmap.md) - Future development plans

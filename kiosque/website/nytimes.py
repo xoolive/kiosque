@@ -15,6 +15,9 @@ The cookie typically lasts for several months.
 """
 
 import logging
+from datetime import datetime, timezone
+from functools import lru_cache
+from typing import ClassVar
 
 from bs4 import BeautifulSoup
 
@@ -25,6 +28,7 @@ from ..core.website import Website
 class NewYorkTimes(Website):
     base_url = "https://www.nytimes.com/"
     login_url = "https://myaccount.nytimes.com/auth/login"
+    alias: ClassVar = ["nytimes", "nyt"]
 
     article_node = ("section", {"name": "articleBody"})
 
@@ -102,8 +106,8 @@ class NewYorkTimes(Website):
 
         # Remove divs with subscription/paywall classes
         for elem in list(article.find_all("div")):
-            classes = elem.get("class", [])
-            class_str = " ".join(classes).lower()
+            classes = elem.get("class", [])  # ty:ignore[invalid-argument-type]
+            class_str = " ".join(classes).lower()  # ty:ignore[no-matching-overload]
             if any(
                 keyword in class_str
                 for keyword in [
@@ -129,3 +133,35 @@ class NewYorkTimes(Website):
             new_article.append(elem)
 
         return new_article
+
+    @lru_cache()
+    def latest_issue_url(self) -> str:
+        """Get URL for today's front page PDF.
+
+        NYT publishes daily front page PDFs at a predictable URL pattern:
+        https://static01.nyt.com/images/YYYY/MM/DD/nytfrontpage/scan.pdf
+
+        Returns:
+            URL string for today's front page PDF
+        """
+        today = datetime.now(timezone.utc)
+        year = today.strftime("%Y")
+        month = today.strftime("%m")
+        day = today.strftime("%d")
+
+        url = f"https://static01.nyt.com/images/{year}/{month}/{day}/nytfrontpage/scan.pdf"
+        logging.info(f"NYT front page PDF URL: {url}")
+        return url
+
+    def file_name(self, c) -> str:
+        """Generate filename for the downloaded PDF.
+
+        Args:
+            c: httpx.Response object (unused, kept for compatibility)
+
+        Returns:
+            Filename string with date
+        """
+        today = datetime.now(timezone.utc)
+        date_str = today.strftime("%Y-%m-%d")
+        return f"nyt-frontpage-{date_str}.pdf"

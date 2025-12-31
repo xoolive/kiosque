@@ -8,7 +8,7 @@
 
 Kiosque is three tools in one:
 
-1. **Article Extractor (CLI/API)** - Download full-text articles from 32+ paywalled news websites as Markdown
+1. **Article Extractor (CLI/API)** - Download full-text articles from paywalled news websites as Markdown
 2. **Bookmark Manager (TUI)** - Browse and manage bookmarks from Raindrop.io and GitHub Stars in a beautiful terminal interface
 3. **Content Aggregator** - Unified tabbed interface for multiple content sources with smart context-aware actions
 
@@ -65,7 +65,7 @@ Website.instance(url).save(url, "article.md")
 
 ### 📰 Article Extraction
 
-- **32+ News Websites** - Support for major publications across English, French, and Japanese
+- **Many News Websites** - Support for several major publications across English and French language newspapers
 - **Authentication** - Login support for paywalled sites with valid subscription
 - **Markdown Output** - Clean, readable format with metadata preservation
 - **Proxy Support** - Access geo-blocked websites via SOCKS/HTTP proxies
@@ -75,7 +75,7 @@ Website.instance(url).save(url, "article.md")
 
 - **Raindrop.io Integration** - Browse, preview, archive, delete, and edit tags on bookmarks
 - **GitHub Stars** - Explore starred repositories, preview READMEs, and unstar
-- **Tag Editing** - Update tags inline with smart parsing (space/comma separated, with/without #)
+- **Tag Editing** - Update tags inline with smart parsing (space/comma separated)
 - **Cross-Tab Actions** - Star GitHub repos directly from Raindrop bookmarks
 - **Unified Search** - Filter by title, URL, tags, and topics across all sources (300ms debounced)
 - **Beautiful Previews** - Markdown rendering with syntax highlighting
@@ -171,7 +171,7 @@ See [Configuration Guide](getting-started/configuration.md) for complete setup i
 - **[Installation Guide](getting-started/installation.md)** - Detailed setup instructions
 - **[Configuration Guide](getting-started/configuration.md)** - Set up authentication and API integrations
 - **[TUI Guide](features/tui-guide.md)** - Master the terminal interface
-- **[Supported Sites](websites/supported-sites.md)** - Full list of 32+ supported websites
+- **[Supported Sites](websites/supported-sites.md)** - Full list of supported websites
 - **[Authentication Guide](websites/authentication.md)** - Site-specific login instructions
 - **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
 - **[Contributing](development/contributing.md)** - Add your favorite news site
