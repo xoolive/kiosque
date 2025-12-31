@@ -44,16 +44,32 @@ kiosque tui
 
 #### TUI Keybindings
 
+**Navigation:**
 | Key | Action |
 |-----|--------|
-| `↑` / `↓` | Navigate entries |
-| `Enter` | Preview article in modal |
-| `d` | Download article to file |
-| `a` | Archive bookmark in Raindrop.io |
-| `o` | Open original URL in browser |
-| `r` | Refresh bookmark list |
+| `↑` / `↓` / `j` / `k` | Navigate entries |
+| `Ctrl+d` / `Ctrl+u` | Scroll down/up by 5 entries |
+| `g` / `G` | Jump to top/bottom |
+| `/` | Search/filter entries |
+| `1` / `2` | Switch between Raindrop/GitHub tabs |
+
+**Entry Actions:**
+| Key | Action |
+|-----|--------|
+| `Space` | Preview article/README in modal |
+| `Enter` | Open in browser |
+| `c` | Copy URL to clipboard |
+| `d` | Delete bookmark (Raindrop) |
+| `e` | Archive bookmark (Raindrop) |
+| `u` | Unstar repository (GitHub) |
+| `s` | Star on GitHub (Raindrop tab, GitHub URLs only) |
+
+**General:**
+| Key | Action |
+|-----|--------|
+| `r` | Refresh current tab |
 | `q` | Quit application |
-| `Esc` | Close modal / Cancel |
+| `Esc` | Close modal |
 
 ### PDF Download (Latest Issue)
 
@@ -138,6 +154,10 @@ password = your_password
 # Raindrop.io integration (optional)
 [raindrop.io]
 token = your_raindrop_api_token
+
+# GitHub Stars integration (optional)
+[github]
+token = ghp_your_github_personal_access_token
 ```
 
 ### Finding Your Configuration File
@@ -165,6 +185,30 @@ To browse and download bookmarks from Raindrop.io in the TUI:
    token = your_api_token_here
    ```
 3. Launch the TUI: `kiosque`
+
+### GitHub Stars Integration
+
+To browse your GitHub starred repositories in the TUI:
+
+1. Create a GitHub Personal Access Token at: https://github.com/settings/tokens
+   - Click "Generate new token" → "Generate new token (classic)"
+   - Give it a descriptive name (e.g., "Kiosque TUI")
+   - Select scopes: `public_repo` (or `repo` for private repos)
+   - Click "Generate token" and copy it
+2. Add to your configuration file:
+   ```ini
+   [github]
+   token = ghp_your_github_personal_access_token_here
+   ```
+3. Launch the TUI: `kiosque`
+4. Press `2` to switch to the GitHub Stars tab
+
+**GitHub TUI Features:**
+- Browse all your starred repositories
+- Preview README files in a modal viewer
+- Unstar repositories directly from the TUI
+- Star GitHub repos found in Raindrop bookmarks
+- Search by repository name, description, language, or topics
 
 ### Proxy Configuration (for Geo-blocked Websites)
 

@@ -167,6 +167,33 @@ class GitHubAPI:
         )
         response.raise_for_status()
 
+    async def star_repo_async(self, owner: str, repo: str) -> None:
+        """Star a repository.
+
+        Args:
+            owner: Repository owner
+            repo: Repository name
+        """
+        response = await self.async_client.put(
+            f"https://api.github.com/user/starred/{owner}/{repo}"
+        )
+        response.raise_for_status()
+
+    async def is_starred_async(self, owner: str, repo: str) -> bool:
+        """Check if a repository is starred.
+
+        Args:
+            owner: Repository owner
+            repo: Repository name
+
+        Returns:
+            True if starred, False otherwise
+        """
+        response = await self.async_client.get(
+            f"https://api.github.com/user/starred/{owner}/{repo}"
+        )
+        return response.status_code == 204
+
     async def async_retrieve(self, offset: int = 0) -> dict[str, Any]:
         """Legacy method for compatibility with TUI - returns formatted data.
 

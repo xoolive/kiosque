@@ -88,12 +88,21 @@ GitHubEntry {
     text-style: bold;
     height: 1;
 }
-#tags {
-    text-align: right;
+
+/* GitHub language + stars and tags line */
+#langstarstags {
+    height: 1;
+    width: 100%;
+}
+
+/* Raindrop tags (standalone) */
+Entry #tags {
+    text-align: left;
     text-style: italic;
     color: #79806e;
     height: 1;
 }
+
 #url {
     color: #9ecae9;
     height: 1;

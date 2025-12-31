@@ -3,19 +3,16 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-import webbrowser
 from typing import ClassVar
 
-import pyperclip
 from rich.text import Text
 from textual import events, on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, VerticalScroll
+from textual.containers import Container, VerticalScroll
 from textual.logging import TextualHandler
 from textual.screen import ModalScreen
 from textual.widgets import (
-    Button,
     Footer,
     Header,
     Input,
@@ -25,16 +22,43 @@ from textual.widgets import (
     TabPane,
 )
 
-from kiosque.api.github import GitHubAPI, GitHubRepo
-from kiosque.api.raindrop import RaindropAPI, RaindropItem
+from kiosque.api.github import GitHubAPI
+from kiosque.api.raindrop import RaindropAPI
 from kiosque.core.config import (
     validate_github_config,
     validate_raindrop_config,
     validate_tui_config,
 )
-from kiosque.core.website import Website
+from kiosque.tui.github import GitHubEntry
+from kiosque.tui.raindrop import Entry
 
 logging.basicConfig(handlers=[TextualHandler()])
+
+
+def parse_github_url(url: str) -> tuple[str, str] | None:
+    """Parse a GitHub URL to extract owner and repo name.
+
+    Args:
+        url: GitHub URL (various formats supported)
+
+    Returns:
+        Tuple of (owner, repo) or None if not a valid GitHub repo URL
+    """
+    patterns = [
+        # https://github.com/owner/repo or .git
+        r"github\.com/([^/]+)/([^/]+?)(?:\.git)?(?:/.*)?$",
+        r"github\.com/([^/]+)/([^/]+)",  # Simple pattern
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, url, re.IGNORECASE)
+        if match:
+            owner, repo = match.groups()
+            # Clean up repo name (remove .git, trailing slashes, etc)
+            repo = repo.rstrip("/").replace(".git", "")
+            return (owner, repo)
+
+    return None
 
 
 class TextDisplay(Static):
@@ -123,192 +147,6 @@ class MarkdownModalScreen(ModalScreen):
 
     def action_close(self):
         self.dismiss()
-
-
-class Entry(Button):
-    """Entry for Raindrop.io bookmarks."""
-
-    BINDINGS = [  # noqa: RUF012
-        Binding("o,enter", "enter", "Open in browser", show=False),
-        ("c", "copy", "Copy URL"),
-        ("d", "delete", "Delete"),
-        ("e", "archive", "Archive"),
-        Binding("space", "preview", "Preview"),
-    ]
-
-    def __init__(self, elt: RaindropItem):
-        self.title = elt.title
-        self.url = str(elt.link)
-        self.added = elt.created
-        self.excerpt = elt.excerpt
-        self.tags = elt.tags
-        self.item_id = elt.id_
-        super().__init__()
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Entry):
-            return self.item_id == other.item_id
-        return False
-
-    def __hash__(self) -> int:
-        return self.item_id
-
-    def match(self, pattern: str) -> bool:
-        if pattern == "":
-            return True
-        if next(re.finditer(pattern, self.title, re.IGNORECASE), None):
-            return True
-        if next(re.finditer(pattern, self.url, re.IGNORECASE), None):
-            return True
-        return False
-
-    def compose(self) -> ComposeResult:
-        yield Horizontal(
-            TextDisplay(self.title, id="title", overflow="ellipsis"),
-            TextDisplay(f"{self.added:%d %b %y}", id="date"),
-            id="entrytitle",
-        )
-        yield TextDisplay(
-            f"#{', #'.join(self.tags)}" if len(self.tags) else "", id="tags"
-        )
-        yield TextDisplay(self.url, id="url", overflow="ellipsis")
-        yield TextDisplay(self.excerpt, id="excerpt")
-
-    def action_copy(self) -> None:
-        pyperclip.copy(self.url)
-
-    def action_enter(self) -> None:
-        webbrowser.open(self.url)
-
-    async def action_archive(self) -> None:
-        self.notify(f"Archive entry {self.item_id}")
-        self.add_class("fading")
-        self.app.screen.focus_next()
-        await self.app.archive_raindrop(self)  # type: ignore
-
-    async def action_delete(self) -> None:
-        self.notify(f"Delete entry {self.item_id}")
-        self.add_class("fading")
-        self.app.screen.focus_next()
-        await self.app.delete_raindrop(self)  # type: ignore
-
-    async def action_preview(self) -> None:
-        try:
-            instance = Website.instance(self.url)
-        except ValueError:
-            self.notify("No preview available", severity="warning")
-            return
-
-        self.notify("Loading preview...")
-
-        try:
-            # Run sync full_text in thread pool to avoid blocking
-            content_markdown = await asyncio.to_thread(
-                instance.full_text, self.url
-            )
-            modal = MarkdownModalScreen(content_markdown)
-            self.app.push_screen(modal)
-        except Exception as e:
-            self.notify(f"Error loading preview: {e}", severity="error")
-
-
-class GitHubEntry(Button):
-    """Entry for GitHub starred repositories."""
-
-    BINDINGS = [  # noqa: RUF012
-        Binding("o,enter", "enter", "Open in browser", show=False),
-        ("c", "copy", "Copy URL"),
-        ("u", "unstar", "Unstar"),
-        Binding("space", "preview", "Preview README"),
-    ]
-
-    def __init__(self, repo: GitHubRepo):
-        self.title = repo.full_name
-        self.url = str(repo.html_url)
-        self.description = repo.description or ""
-        self.language = repo.language or ""
-        self.stars = repo.stargazers_count
-        self.topics = repo.topics
-        self.added = repo.starred_at or repo.created_at
-        self.repo_id = repo.id
-        self.owner = repo.full_name.split("/")[0]
-        self.repo_name = repo.full_name.split("/")[1]
-        super().__init__()
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, GitHubEntry):
-            return self.repo_id == other.repo_id
-        return False
-
-    def __hash__(self) -> int:
-        return self.repo_id
-
-    def match(self, pattern: str) -> bool:
-        if pattern == "":
-            return True
-        if next(re.finditer(pattern, self.title, re.IGNORECASE), None):
-            return True
-        if next(re.finditer(pattern, self.description, re.IGNORECASE), None):
-            return True
-        if self.language and next(
-            re.finditer(pattern, self.language, re.IGNORECASE), None
-        ):
-            return True
-        # Search in topics/tags
-        for topic in self.topics:
-            if next(re.finditer(pattern, topic, re.IGNORECASE), None):
-                return True
-        return False
-
-    def compose(self) -> ComposeResult:
-        # Title line: repo name + date
-        yield Horizontal(
-            TextDisplay(self.title, id="title", overflow="ellipsis"),
-            TextDisplay(f"{self.added:%d %b %y}", id="date"),
-            id="entrytitle",
-        )
-        # Language and stars (on same line as tags, but separate for now)
-        lang_stars = f"{self.language}" if self.language else ""
-        if lang_stars and self.stars:
-            lang_stars += f" · ⭐ {self.stars}"
-        elif self.stars:
-            lang_stars = f"⭐ {self.stars}"
-
-        # Topics/tags with # prefix - same ID as Raindrop for styling
-        if self.topics:
-            topics_str = " ".join(
-                f"#{topic}" for topic in self.topics[:3]
-            )  # Limit to 3 topics
-            if lang_stars:
-                yield TextDisplay(f"{lang_stars} · {topics_str}", id="tags")
-            else:
-                yield TextDisplay(topics_str, id="tags")
-        elif lang_stars:
-            yield TextDisplay(lang_stars, id="tags")
-        else:
-            yield TextDisplay("", id="tags")
-
-        # Description
-        yield TextDisplay(self.description, id="excerpt")
-
-    def action_copy(self) -> None:
-        pyperclip.copy(self.url)
-
-    def action_enter(self) -> None:
-        webbrowser.open(self.url)
-
-    async def action_unstar(self) -> None:
-        self.notify(f"Unstar {self.title}")
-        self.add_class("fading")
-        self.app.screen.focus_next()
-        await self.app.unstar_repo(self)  # type: ignore
-
-    async def action_preview(self) -> None:
-        self.notify("Loading README...")
-        try:
-            await self.app.preview_github_readme(self)  # type: ignore
-        except Exception as e:
-            self.notify(f"Error loading README: {e}", severity="error")
 
 
 class Kiosque(App):
