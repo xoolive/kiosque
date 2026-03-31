@@ -135,6 +135,12 @@ def main(
             tui_main()
         elif url_or_alias in library:
             library[url_or_alias]().save_latest_issue()
+        elif output is None:
+            instance = Website.instance(url_or_alias)
+            if url_or_alias in instance.alias:
+                instance.save_latest_issue()
+            else:
+                instance.write_text(url_or_alias, output)
         elif output is None or isinstance(output, Path):
             instance = Website.instance(url_or_alias)
             instance.write_text(url_or_alias, output)

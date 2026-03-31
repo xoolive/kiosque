@@ -29,6 +29,7 @@ from kiosque.core.config import (
     validate_raindrop_config,
     validate_tui_config,
 )
+from kiosque.core.website import Website
 from kiosque.tui.github import GitHubEntry
 from kiosque.tui.raindrop import Entry
 
@@ -198,7 +199,10 @@ class SearchBar(Input):
 
 
 class MarkdownModalScreen(ModalScreen):
-    BINDINGS: ClassVar = [Binding("space", "close", "Close preview")]
+    BINDINGS: ClassVar = [
+        Binding("space", "close", "Close preview"),
+        Binding("s", "save", "Save"),
+    ]
 
     def __init__(self, markdown_text: str, **kwargs):
         self.markdown_text = markdown_text
@@ -249,6 +253,25 @@ class MarkdownModalScreen(ModalScreen):
 
     def action_close(self):
         self.dismiss()
+
+    async def action_save(self) -> None:
+        url = self.metadata.get("url")
+        if not url:
+            self.notify("No URL in content", severity="warning")
+            return
+        try:
+            instance = Website.instance(url)
+        except ValueError:
+            self.notify(
+                "No exporter available for this URL", severity="warning"
+            )
+            return
+        self.notify("Saving...")
+        try:
+            await asyncio.to_thread(instance.write_text, url)
+            self.notify("✓ Saved")
+        except Exception as e:
+            self.notify(f"Error saving: {e}", severity="error")
 
 
 class Kiosque(App):

@@ -29,7 +29,8 @@ class Entry(Button):
         ("d", "delete", "Delete"),
         ("e", "archive", "Archive"),
         Binding("space", "preview", "Preview"),
-        ("s", "star_github", "Star on GitHub"),
+        ("s", "save", "Save"),
+        ("*", "star_github", "Star on GitHub"),
         ("t", "edit_tags", "Edit tags"),
     ]
 
@@ -225,6 +226,21 @@ url: {self.url}
             self.notify("✓ GitHub tab updated")
         except Exception as e:
             self.notify(f"Error starring repository: {e}", severity="error")
+
+    async def action_save(self) -> None:
+        try:
+            instance = Website.instance(self.url)
+        except ValueError:
+            self.notify(
+                "No exporter available for this URL", severity="warning"
+            )
+            return
+        self.notify("Saving...")
+        try:
+            await asyncio.to_thread(instance.write_text, self.url)
+            self.notify("✓ Saved")
+        except Exception as e:
+            self.notify(f"Error saving: {e}", severity="error")
 
     def action_edit_tags(self) -> None:
         """Edit tags for this bookmark."""
