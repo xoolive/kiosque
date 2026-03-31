@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
+from typing import ClassVar
 
 from ..core.client import get_with_retry
 from ..core.website import Website
@@ -107,7 +108,7 @@ def _render_thread(tweets: list[dict]) -> str:
 
 class Twitter(Website):
     base_url = "https://x.com/"
-    alias = ["twitter", "x"]
+    alias: ClassVar[list[str]] = ["twitter", "x"]
 
     def _root(self, url: str) -> dict:
         """Return the root tweet of the thread (or the tweet itself)."""
