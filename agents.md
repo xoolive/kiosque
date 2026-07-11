@@ -23,3 +23,6 @@
 - kiosque/api/ - API integrations (Raindrop.io, Pocket - deprecated)
 - kiosque/tui/ - Terminal UI with Textual
 
+## Agent coding
+
+- If there is a file where the plan is written stored, update it after every step
