@@ -1,6 +1,6 @@
 [project]
 name = "kiosque"
-version = "0.1.0"
+version = "0.2.0"
 description = "Save newspaper articles in textual format"
 authors = [{ name = "Xavier Olive", email = "git@xoolive.org" }]
 requires-python = ">=3.12"
