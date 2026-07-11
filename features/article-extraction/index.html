@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -1666,6 +1666,12 @@
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Download Pour la Science issue (monthly)</span>
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>kiosque<span class="w"> </span>pls
 </code></pre></div>
+<p>To resolve the latest issue filename without downloading the PDF body:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kiosque<span class="w"> </span>courrier<span class="w"> </span>--resolve<span class="w">  </span><span class="c1"># prints, for example: h1862.pdf</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>kiosque<span class="w"> </span>lmd<span class="w"> </span>--resolve<span class="w">       </span><span class="c1"># prints the filename advertised by the server</span>
+</code></pre></div>
+<p>This is suitable for automation: standard output contains only the filename,
+while diagnostics are written to standard error.</p>
 <p>PDFs are saved to the current directory with timestamped filenames (e.g., <code>nyt-frontpage-2025-12-31.pdf</code>).</p>
 <p><strong>Publications with PDF support:</strong></p>
 <table>
@@ -1711,23 +1717,23 @@
 </table>
 <p><strong>Note:</strong> Courrier International may be geo-blocked outside France/Europe and require a proxy.</p>
 <p>Python API:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiosque.website.nytimes</span><span class="w"> </span><span class="kn">import</span> <span class="n">NewYorkTimes</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># Download today&#39;s front page PDF</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">nyt</span> <span class="o">=</span> <span class="n">NewYorkTimes</span><span class="p">()</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">nyt</span><span class="o">.</span><span class="n">save_latest_issue</span><span class="p">()</span>  <span class="c1"># Saves to current directory</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Get PDF URL</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">pdf_url</span> <span class="o">=</span> <span class="n">nyt</span><span class="o">.</span><span class="n">latest_issue_url</span><span class="p">()</span>  <span class="c1"># https://static01.nyt.com/images/2025/12/31/nytfrontpage/scan.pdf</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiosque.website.nytimes</span><span class="w"> </span><span class="kn">import</span> <span class="n">NewYorkTimes</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># Download today&#39;s front page PDF</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">nyt</span> <span class="o">=</span> <span class="n">NewYorkTimes</span><span class="p">()</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">nyt</span><span class="o">.</span><span class="n">save_latest_issue</span><span class="p">()</span>  <span class="c1"># Saves to current directory</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Get PDF URL</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">pdf_url</span> <span class="o">=</span> <span class="n">nyt</span><span class="o">.</span><span class="n">latest_issue_url</span><span class="p">()</span>  <span class="c1"># https://static01.nyt.com/images/2025/12/31/nytfrontpage/scan.pdf</span>
 </code></pre></div>
 <h3 id="custom-headers">Custom Headers<a class="headerlink" href="#custom-headers" title="Permanent link">&para;</a></h3>
 <p>Override HTTP headers for specific sites:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiosque.core.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">client</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom User Agent&quot;</span><span class="p">,</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">&quot;Referer&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com&quot;</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">})</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiosque.core.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">client</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom User Agent&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="s2">&quot;Referer&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com&quot;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">})</span>
 </code></pre></div>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
