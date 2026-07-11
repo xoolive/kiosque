@@ -5,7 +5,7 @@ from ..core.website import Website
 
 class Mediapart(Website):
     base_url = "https://www.mediapart.fr/"
-    login_url = "https://www.mediapart.fr/login_check"
+    login_url = "https://auth.mediapart.fr/login"
 
     author_meta: ClassVar = {"name": ["author"]}
 
@@ -17,8 +17,10 @@ class Mediapart(Website):
         assert credentials is not None
 
         return {
-            "email": credentials["username"],
+            "username": credentials["username"],
             "password": credentials["password"],
+            "origin_url": f"{self.base_url}login",
+            "destination_url": self.base_url,
         }
 
     def article(self, url):
