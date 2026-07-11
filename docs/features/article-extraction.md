@@ -142,6 +142,16 @@ kiosque courrier
 kiosque pls
 ```
 
+To resolve the latest issue filename without downloading the PDF body:
+
+```bash
+kiosque courrier --resolve  # prints, for example: h1862.pdf
+kiosque lmd --resolve       # prints the filename advertised by the server
+```
+
+This is suitable for automation: standard output contains only the filename,
+while diagnostics are written to standard error.
+
 PDFs are saved to the current directory with timestamped filenames (e.g., `nyt-frontpage-2025-12-31.pdf`).
 
 **Publications with PDF support:**

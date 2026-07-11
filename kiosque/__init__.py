@@ -72,6 +72,11 @@ def list_websites() -> None:
 @click.argument("output", type=click.File("w"), required=False, default=None)
 @click.option("-v", "--verbose", count=True, help="Verbosity level")
 @click.option(
+    "--resolve",
+    is_flag=True,
+    help="Print the latest issue filename without downloading the PDF",
+)
+@click.option(
     "--list-websites",
     "show_list",
     is_flag=True,
@@ -81,12 +86,16 @@ def main(
     url_or_alias: str | None,
     output: Path | None,
     verbose: int,
+    resolve: bool,
     show_list: bool,
 ) -> None:
     # Handle --list-websites flag
     if show_list:
         list_websites()
         return
+
+    if resolve and url_or_alias is None:
+        raise click.UsageError("--resolve requires a publication alias")
 
     # Launch TUI by default when no arguments provided
     if url_or_alias is None:
@@ -134,7 +143,15 @@ def main(
         if url_or_alias == "tui":
             tui_main()
         elif url_or_alias in library:
-            library[url_or_alias]().save_latest_issue()
+            instance = library[url_or_alias]()
+            if resolve:
+                click.echo(instance.resolve_latest_issue())
+            else:
+                instance.save_latest_issue()
+        elif resolve:
+            raise click.UsageError(
+                "--resolve requires an alias for a publication with PDF support"
+            )
         elif output is None:
             instance = Website.instance(url_or_alias)
             if url_or_alias in instance.alias:

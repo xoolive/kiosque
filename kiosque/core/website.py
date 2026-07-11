@@ -459,6 +459,16 @@ class Website:
         url = self.latest_issue_url()
         return Path(url).name
 
+    def resolve_latest_issue(self) -> str:
+        """Return the latest issue filename without downloading its body."""
+        if not self.connected:
+            self.login()
+        url = self.latest_issue_url()
+        with client.stream("GET", url) as response:
+            response.raise_for_status()
+            path = (Path(".") / self.file_name(response)).with_suffix(".pdf")
+            return path.name
+
     def get_latest_issue(self) -> httpx.Response:
         if not self.connected:
             self.login()
