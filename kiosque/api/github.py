@@ -30,9 +30,22 @@ class GitHubRepo(BaseModel):
     @field_validator("homepage", mode="before")
     @classmethod
     def validate_homepage(cls, v: str | None) -> str | None:
-        """Validate homepage URL, converting empty strings to None."""
-        if v == "" or v is None:
+        """Normalise homepage URL, tolerating GitHub's scheme-less values.
+
+        GitHub frequently returns bare hostnames (e.g. ``basalt.page``) or
+        empty strings for ``homepage``. Without a scheme these fail ``HttpUrl``
+        validation and a single such repo would abort the whole starred-repos
+        refresh. Prepend ``https://`` to scheme-less values and treat empty
+        values as absent.
+        """
+        if v is None or v == "":
             return None
+        if isinstance(v, str):
+            v = v.strip()
+            if v == "":
+                return None
+            if not v.startswith(("http://", "https://")):
+                v = f"https://{v}"
         return v
 
 

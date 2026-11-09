@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Literal
+from typing import Any
 
 import httpx
 from pydantic import BaseModel, Field, HttpUrl, field_validator
@@ -38,7 +38,12 @@ class RaindropItem(BaseModel):
     tags: list[str] = Field(default_factory=list)
     cover: HttpUrl | None = None
     collection: RaindropCollection
-    type: Literal["link", "article", "image", "video", "document"]
+    # Raindrop.io may return arbitrary item types (e.g. "audio" for Spotify
+    # playlists) that are not in its documented enum. The value is not used for
+    # any logic in the TUI, so accept any string rather than rejecting items
+    # and breaking the whole bookmark list. Known values include: link,
+    # article, image, video, document, audio.
+    type: str
     user: dict[str, Any]  # Simplified; contains user information
     important: bool = False
     media: list[dict] = Field(default_factory=list)

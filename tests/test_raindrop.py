@@ -64,3 +64,25 @@ def test_raindrop_item_cover_empty_string():
     }
     item = RaindropItem(**item_data)
     assert item.cover is None
+
+
+def test_raindrop_item_type_audio():
+    """Test that non-documented item types (e.g. audio) are accepted.
+
+    Raindrop.io returns ``type: "audio"`` for Spotify playlist bookmarks.
+    A strict literal here would raise a ValidationError and, because
+    get_items_async() builds every item in one call, break the entire
+    Raindrop tab in the TUI.
+    """
+    item_data = {
+        "_id": 1810427320,
+        "title": "中文歌曲精選",
+        "link": "https://open.spotify.com/playlist/3KBhyKlVUvXECmQFzzmly1",
+        "created": "2026-08-04T11:57:14.397Z",
+        "lastUpdate": "2026-08-04T11:57:16.946Z",
+        "collection": {"_id": -1},
+        "type": "audio",
+        "user": {"_id": 1},
+    }
+    item = RaindropItem(**item_data)
+    assert item.type == "audio"
