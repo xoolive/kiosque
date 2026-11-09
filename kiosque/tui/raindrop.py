@@ -14,6 +14,7 @@ from textual.containers import Horizontal
 from textual.widgets import Button
 
 from kiosque.api.raindrop import RaindropItem
+from kiosque.core.media import has_media_extractor
 from kiosque.core.website import Website
 
 if TYPE_CHECKING:
@@ -29,6 +30,7 @@ class Entry(Button):
         ("d", "delete", "Delete"),
         ("e", "archive", "Archive"),
         Binding("space", "preview", "Preview"),
+        Binding("m", "media", "Media formats"),
         ("s", "save", "Save"),
         ("*", "star_github", "Star on GitHub"),
         ("t", "edit_tags", "Edit tags"),
@@ -160,11 +162,22 @@ url: {self.url}
                 )
                 return
 
-        # Fall back to website preview
+        # Dedicated extractors (YouTube, ARTE, etc.) take priority over article
+        # resolution, which otherwise fetches unknown URLs just to reject them.
+        if await asyncio.to_thread(has_media_extractor, self.url):
+            self.action_media()
+            return
+
+        # Keep article previews and the usual unsupported-preview warning.
+        # Generic/embedded media discovery is an explicit action (m), not a
+        # fallback for every URL. Website resolution may itself perform I/O.
         try:
-            instance = Website.instance(self.url)
+            instance = await asyncio.to_thread(Website.instance, self.url)
         except ValueError:
             self.notify("No preview available", severity="warning")
+            return
+        except Exception as exc:
+            self.notify(f"Error loading preview: {exc}", severity="error")
             return
 
         self.notify("Loading preview...")
@@ -178,6 +191,10 @@ url: {self.url}
             self.app.push_screen(modal)
         except Exception as e:
             self.notify(f"Error loading preview: {e}", severity="error")
+
+    def action_media(self) -> None:
+        """Explicitly discover media, including videos embedded in articles."""
+        self.app.preview_media(self.url)  # type: ignore
 
     async def action_star_github(self) -> None:
         """Star a GitHub repository (only shown for GitHub URLs)."""
