@@ -26,11 +26,19 @@ from kiosque.api.github import GitHubAPI
 from kiosque.api.raindrop import RaindropAPI
 from kiosque.core.config import (
     validate_github_config,
+    validate_media_config,
+    validate_proxy_config,
     validate_raindrop_config,
     validate_tui_config,
 )
+from kiosque.core.media import (
+    DownloadCancelled,
+    DownloadSelection,
+    MediaService,
+)
 from kiosque.core.website import Website
 from kiosque.tui.github import GitHubEntry
+from kiosque.tui.media import MediaDownload, MediaModalScreen
 from kiosque.tui.raindrop import Entry
 
 logging.basicConfig(handlers=[TextualHandler()])
@@ -297,6 +305,80 @@ class Kiosque(App):
         self.has_raindrop = False
         self.has_github = False
         self._search_timer: asyncio.TimerHandle | None = None
+        self._media_service: MediaService | None = None
+        self._media_downloads: list[MediaDownload] = []
+
+    @property
+    def media_service(self) -> MediaService:
+        if self._media_service is None:
+            proxy = validate_proxy_config()
+            self._media_service = MediaService(
+                validate_media_config(), proxy=proxy.url if proxy else None
+            )
+        return self._media_service
+
+    def preview_media(self, url: str) -> None:
+        self.push_screen(
+            MediaModalScreen(
+                url,
+                self.media_service,
+                self._media_downloads,
+                self.start_media_download,
+            )
+        )
+
+    def start_media_download(
+        self, url: str, selection: DownloadSelection
+    ) -> MediaDownload:
+        for job in self._media_downloads:
+            if job.url == url and not job.done:
+                return job
+        # Keep recent results for reopening a picker, without unbounded history.
+        completed = [job for job in self._media_downloads if job.done]
+        recent = {id(job) for job in completed[-19:]}
+        self._media_downloads[:] = [
+            job
+            for job in self._media_downloads
+            if not job.done or id(job) in recent
+        ]
+        job = MediaDownload(url, selection)
+        self._media_downloads.append(job)
+
+        async def download() -> None:
+            try:
+                destination = await asyncio.to_thread(
+                    self.media_service.download,
+                    url,
+                    selection,
+                    job.cancel,
+                    lambda message: setattr(job, "status", message),
+                )
+                job.status = f"Saved to {destination}"
+                self.notify(job.status, title="Media download")
+            except DownloadCancelled:
+                job.status = "Download cancelled"
+                self.notify(job.status, title="Media download")
+            except asyncio.CancelledError:
+                job.cancel.set()
+                job.status = "Cancellation requested"
+                raise
+            except Exception as exc:
+                job.status = f"Download failed: {exc}"
+                self.notify(
+                    job.status, severity="error", title="Media download"
+                )
+            finally:
+                job.done = True
+
+        self.run_worker(
+            download(), group="media-downloads", exit_on_error=False
+        )
+        return job
+
+    def on_unmount(self) -> None:
+        for job in self._media_downloads:
+            if not job.done:
+                job.cancel.set()
 
     def on_load(self, event: events.Load) -> None:
         """Sent before going in to application mode."""

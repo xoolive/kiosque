@@ -1,6 +1,7 @@
 import configparser
 import logging
 import os
+import sys
 from pathlib import Path
 
 from appdirs import user_config_dir
@@ -71,6 +72,37 @@ class GitHubConfig(BaseModel):
         return v.strip()
 
 
+def default_media_directory() -> Path:
+    """Use the platform's video directory without executing shell config."""
+    if sys.platform == "darwin":
+        return Path.home() / "Movies" / "kiosque"
+    if sys.platform.startswith("linux"):
+        xdg = Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
+        try:
+            for line in (xdg / "user-dirs.dirs").read_text().splitlines():
+                if line.startswith("XDG_VIDEOS_DIR="):
+                    value = line.split("=", 1)[1].strip().strip('"')
+                    value = value.replace("${HOME}", str(Path.home()))
+                    value = value.replace("$HOME", str(Path.home()))
+                    if "$" not in value and Path(value).is_absolute():
+                        return Path(value) / "kiosque"
+        except OSError:
+            pass
+    return Path.home() / "Videos" / "kiosque"
+
+
+class MediaConfig(BaseModel):
+    """Download destination and format-list cache freshness."""
+
+    download_dir: Path = Field(default_factory=default_media_directory)
+    cache_ttl: int = Field(default=21600, ge=0)
+
+    @field_validator("download_dir")
+    @classmethod
+    def expand_download_dir(cls, value: Path) -> Path:
+        return value.expanduser().resolve()
+
+
 class TUIConfig(BaseModel):
     """Model for TUI configuration."""
 
@@ -118,6 +150,11 @@ if not config_dir.exists():
 # TUI configuration (optional)
 # [tui]
 # refresh_interval = 600  # Auto-refresh interval (default: 10 min)
+#
+# Media downloads (optional)
+# [media]
+# download_dir = ~/Movies/kiosque
+# cache_ttl = 21600
 #
 # Proxy configuration (optional, for geo-blocked websites)
 # Supports HTTP, HTTPS, SOCKS4, and SOCKS5 proxies
@@ -225,6 +262,11 @@ def validate_proxy_config() -> ProxyConfig | None:
         raise
 
 
+def validate_media_config() -> MediaConfig:
+    """Return configured media settings, or platform defaults."""
+    return MediaConfig.model_validate(config_dict.get("media", {}))
+
+
 def validate_tui_config() -> TUIConfig:
     """Validate TUI configuration if present.
 
@@ -240,7 +282,7 @@ def validate_tui_config() -> TUIConfig:
         return TUIConfig()  # Use defaults
 
     try:
-        return TUIConfig(**tui_data)  # ty: ignore[invalid-argument-type]
+        return TUIConfig.model_validate(tui_data)
     except ValidationError as e:
         logging.error(f"Invalid TUI configuration: {e}")
         raise

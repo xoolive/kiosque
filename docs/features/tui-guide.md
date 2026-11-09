@@ -97,21 +97,22 @@ The TUI features:
 
 ### Common Actions (All Tabs)
 
-| Key           | Action          | Description                         |
-| ------------- | --------------- | ----------------------------------- |
-| `Space`       | Preview         | Open article/README in modal viewer |
-| `Enter` / `o` | Open in browser | Opens URL in default browser        |
-| `c`           | Copy URL        | Copy entry URL to clipboard         |
-| `Esc`         | Close modal     | Exit preview modal                  |
+| Key           | Action          | Description                          |
+| ------------- | --------------- | ------------------------------------ |
+| `Space`       | Preview         | Open article, README or media picker |
+| `Enter` / `o` | Open in browser | Opens URL in default browser         |
+| `c`           | Copy URL        | Copy entry URL to clipboard          |
+| `Esc`         | Close modal     | Exit preview modal                   |
 
 ### Raindrop-Specific Actions
 
-| Key | Action         | Description                              |
-| --- | -------------- | ---------------------------------------- |
-| `d` | Delete         | Permanently delete bookmark              |
-| `e` | Archive        | Move bookmark to archive                 |
-| `t` | Edit tags      | Enter tag editing mode                   |
-| `s` | Star on GitHub | Star GitHub repos (only for GitHub URLs) |
+| Key | Action         | Description                                        |
+| --- | -------------- | -------------------------------------------------- |
+| `d` | Delete         | Permanently delete bookmark                        |
+| `e` | Archive        | Move bookmark to archive                           |
+| `t` | Edit tags      | Enter tag editing mode                             |
+| `s` | Star on GitHub | Star GitHub repos (only for GitHub URLs)           |
+| `m` | Media formats  | Find downloadable media, including embedded videos |
 
 ### GitHub-Specific Actions
 
@@ -195,6 +196,78 @@ All formats are normalized to a consistent tag list.
 ### Known Issue
 
 **Link Navigation Error**: Clicking links in preview modals opens them in the browser correctly, but also triggers a `FileNotFoundError` due to Textual framework trying to navigate to the URL as a local file. This is a Textual bug, not a Kiosque issue. The link still opens correctly - just ignore the error message.
+
+## Media Previews and Downloads
+
+Press `Space` on a YouTube, ARTE or other yt-dlp-supported bookmark to open
+its format picker. Article and GitHub README previews remain available as before.
+Unsupported article previews show “No preview available” rather than opening the
+media picker. Press `m` on any Raindrop entry to explicitly search for media,
+including videos embedded in article pages or pages without a dedicated yt-dlp
+extractor. Discovery uses the **yt-dlp Python library**, not a command-line wrapper.
+
+Choose a video/version, audio track and any subtitle languages/formats. Labels
+include the format ID, codecs, quality, language, version notes and file size when
+available. ARTE's original, dubbed and accessibility version notes are preserved.
+Combined video/audio versions keep their own soundtrack; pair a separate audio
+track only with a video-only format. To download audio alone, select **No video**;
+combined versions can also be selected for audio extraction. For subtitles alone,
+select **No video** and **No audio**. `Enter` or a click toggles a subtitle choice.
+As with article/README previews, pressing `Space` again closes the picker from any
+control.
+
+Actions appear in the same clickable key-hint footer as the main window:
+`Ctrl+s` downloads, `r` refreshes formats, `x` cancels the current job and `Space`
+closes the preview. Unavailable actions remain visible but dimmed.
+
+Click **Download** in the footer or press `Ctrl+s`. Separate tracks merge into MKV without
+re-encoding, and subtitles are saved as separate sidecar files. Different media
+versions and subtitle variants receive distinct filenames. Closing the picker
+with `Space`, `Escape` or **Close** leaves downloads running; reopen it to see progress or
+click **Cancel job**. Quitting Kiosque requests cancellation of active jobs.
+Cancellation is cooperative: network extraction or an ffmpeg operation already
+running may take time to reach its next cancellation checkpoint.
+
+### Format Cache
+
+Format/subtitle metadata is cached in memory and in the platform's Kiosque cache
+directory under `media/`. Reopening a preview uses cached choices immediately,
+even across Kiosque restarts. Listings are fresh for six hours by default; older
+listings refresh in the background while retaining your selection. Press `r` or
+click **Refresh** to explicitly reload choices. Cache age/refresh errors appear in
+the picker. The cache holds up to 128 listings and is scoped to the yt-dlp version
+and proxy configuration.
+
+The cache stores display metadata and selection IDs, **not cookies, credentials
+or signed stream URLs**. Download URLs are refreshed when a job starts. If an
+exact selected track disappeared, the download fails rather than silently
+substituting a different version.
+
+### Destination and Dependencies
+
+The default download directory is `~/Movies/kiosque` on macOS. On Linux, Kiosque
+uses the XDG videos directory when configured, otherwise `~/Videos/kiosque`.
+Other platforms use `~/Videos/kiosque`. Override the destination and cache
+freshness in `kiosque.conf`:
+
+```ini
+[media]
+download_dir = ~/Movies/kiosque
+cache_ttl = 21600
+```
+
+`cache_ttl` is in seconds; zero always refreshes cached listings in the background.
+The destination is shown in the picker and created on the first download.
+
+Install **ffmpeg** (including ffprobe) for track merging and extracting audio from
+combined versions. Full YouTube support also needs a supported JavaScript runtime
+such as **Deno**; yt-dlp's default Python extras include its EJS support package.
+On macOS, `brew install ffmpeg deno` provides the external tools.
+
+Configured `[proxy]` settings also apply to media discovery/downloads. Browser
+cookies are not read automatically. Geo-blocking, expired broadcast rights,
+authentication and DRM can limit availability. This initial version accepts only
+single on-demand videos, not playlists, channels, live or upcoming streams.
 
 ## General Actions
 
